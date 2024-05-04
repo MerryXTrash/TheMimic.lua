@@ -1,4 +1,4 @@
-loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/MerryXTrash/NewUi/main/redzLib.txt")))()
 MakeWindow({
   Hub = {
     Title = "Xerloraity |  The Mimic - Book 1 Chapter 1",
