@@ -33,7 +33,7 @@ local A = MakeTab({Name = "Main"})
 local S = MakeTab({Name = "Setting"})
 local I = MakeTab({Name = "Info"})
 
-local section = AddSection(Main, {"Teste"})
+local section = AddSection(A, {"Teste"})
 SetSection(section, "Auto win")
 AddButton(Main, {
   Name = "Skip",
