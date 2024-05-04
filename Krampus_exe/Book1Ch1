@@ -38,7 +38,7 @@ SetSection(section, "Auto win")
 AddButton(A, {
   Name = "Skip",
   Callback = function()
-    print("iii")
+    game.Players.localPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3507.028564453125, 43.13663864135742, -1541.9735107421875)
   end
 })
 
@@ -55,10 +55,10 @@ local Label = AddTextLabel(I, "Info")
 SetLabel(Label, "Made by Krampus_exe")
 
 local Image = AddImageLabel(I, {
-  Name = "Power Up By",
+  Name = "Krampus_exe(Owner)",
   Image = "rbxassetid://"
 })
-SetImage(Image, "rbxassetid://17381278901")
+SetImage(Image, "rbxassetid://17381434775")
 
 local section = AddSection(S, {"Teste"})
 SetSection(section, "Misc")
