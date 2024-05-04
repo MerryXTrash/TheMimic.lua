@@ -55,7 +55,7 @@ local Label = AddTextLabel(I, "Info")
 SetLabel(Label, "Made by Krampus_exe")
 
 local Image = AddImageLabel(I, {
-  Name = "Xerloraity",
+  Name = "Power Up By",
   Image = "rbxassetid://"
 })
-SetImage(Image, "rbxassetid://16647182763")
+SetImage(Image, "rbxassetid://17381278901")
