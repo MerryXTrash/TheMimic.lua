@@ -35,9 +35,24 @@ local I = MakeTab({Name = "Info"})
 
 local section = AddSection(A, {"Teste"})
 SetSection(section, "Auto win")
-AddButton(Main, {
+AddButton(A, {
   Name = "Skip",
   Callback = function()
     print("iii")
   end
 })
+
+local section = AddSection(I, {"Teste"})
+SetSection(section, "Discord")
+AddButton(A, {
+  Name = "Copy link",
+  Callback = function()
+    print("iii")
+  end
+})
+
+local Image = AddImageLabel(I, {
+  Name = "Xerloraity",
+  Image = "rbxassetid://"
+})
+SetImage(Image, "rbxassetid://16647182763")
