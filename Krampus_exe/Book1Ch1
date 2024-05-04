@@ -49,6 +49,7 @@ AddButton(I, {
   Callback = function()
     print("iii")
   end
+})
 
 local Label = AddTextLabel(I, "Info")
 SetLabel(Label, "Made by Krampus_exe")
