@@ -47,7 +47,7 @@ SetSection(section, "Discord")
 AddButton(I, {
   Name = "Copy link",
   Callback = function()
-    print("iii")
+    setclipboard(tostring(https://discord.com/invite/aTduHQtu))
   end
 })
 
