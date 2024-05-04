@@ -50,7 +50,7 @@ AddButton(I, {
     print("iii")
   end
 
-local Paragraph = AddParagraph(Main, {" ", "bom dia meus manos"})
+local Paragraph = AddParagraph(I, {" ", "bom dia meus manos"})
 SetParagraph(Paragraph, {"Made by Krampus_exe", ":>"})
 
 })
