@@ -1,0 +1,43 @@
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
+MakeWindow({
+  Hub = {
+    Title = "Xerloraity",
+    Animation = "By : Krampus_exe"
+  },
+  Key = {
+    KeySystem = false,
+    Title = "Xerloraity",
+    Description = "",
+    KeyLink = "https://sub4unlock.io/1kPsC",
+    Keys = {"Exility-QT2M-UVA1-2550"},
+    Notifi = {
+      Notifications = true,
+      CorrectKey = "Key is Correct wait(..)",
+      Incorrectkey = "The key is incorrect",
+      CopyKeyLink = "Copied to Clipboard"
+    }
+  }
+})
+
+MinimizeButton({
+  Image = "rbxassetid://16647182763",
+  Size = {55, 55},
+  Color = Color3.fromRGB(10, 10, 10),
+  Corner = true,
+  Stroke = false,
+  StrokeColor = Color3.fromRGB(255, 0, 0)
+})
+
+
+local A = MakeTab({Name = "Main"})
+local S = MakeTab({Name = "Setting"})
+local I = MakeTab({Name = "Info"})
+
+local section = AddSection(Main, {"Teste"})
+SetSection(section, "Auto win")
+AddButton(Main, {
+  Name = "Skip",
+  Callback = function()
+    print("iii")
+  end
+})
