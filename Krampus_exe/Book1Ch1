@@ -42,20 +42,11 @@ AddButton(A, {
   end
 })
 
-local section = AddSection(I, {"Teste"})
-SetSection(section, "Discord")
-AddButton(I, {
-  Name = "Copy link",
-  Callback = function()
-    setclipboard(tostring(https://discord.com/invite/aTduHQtu))
-  end
-})
-
 local Label = AddTextLabel(I, "Info")
-SetLabel(Label, "Made by Krampus_exe")
+SetLabel(Label, "https://discord.com/invite/aTduHQtu")
 
 local Image = AddImageLabel(I, {
-  Name = "Krampus_exe(Owner)",
+  Name = "Krampus_exe",
   Image = "rbxassetid://"
 })
 SetImage(Image, "rbxassetid://17381434775")
