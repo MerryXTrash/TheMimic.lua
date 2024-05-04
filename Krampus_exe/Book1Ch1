@@ -50,10 +50,8 @@ AddButton(I, {
     print("iii")
   end
 
-local Paragraph = AddParagraph(I, {" ", "bom dia meus manos"})
-SetParagraph(Paragraph, {"Made by Krampus_exe", ":>"})
-
-})
+local Label = AddTextLabel(I, "Info")
+SetLabel(Label, "Made by Krampus_exe")
 
 local Image = AddImageLabel(I, {
   Name = "Xerloraity",
