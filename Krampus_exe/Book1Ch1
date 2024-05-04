@@ -49,6 +49,10 @@ AddButton(I, {
   Callback = function()
     print("iii")
   end
+
+local Paragraph = AddParagraph(Main, {" ", "bom dia meus manos"})
+SetParagraph(Paragraph, {"Made by Krampus_exe", ":>"})
+
 })
 
 local Image = AddImageLabel(I, {
