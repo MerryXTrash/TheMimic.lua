@@ -63,27 +63,25 @@ task.spawn(function()
 				if syn then
 					setfflag("HumanoidParallelRemoveNoPhysics", "False")
 					setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
-					game.Players.LocalPlayer.Character.Humanoid:ChangeState(11)
-					if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
-						game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+					LocalPlayer.Character.Humanoid:ChangeState(11)
+					if LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
+						LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
 					end
 				else
 					if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-						if not game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1") then
-							if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
-								game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+						if not LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1") then
+							if LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
+								LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
 							end
 							local bodyVelocity = Instance.new("BodyVelocity")
-							bodyVelocity.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+							bodyVelocity.Parent = LocalPlayer.Character.HumanoidRootPart
 							bodyVelocity.velocity = Vector3.new(0, 0, 0)
 							bodyVelocity.maxForce = Vector3.new(100000, 100000, 100000)
 						end
 					end
 				end
 			else
-				if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1") then
-					game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1"):Destroy()
-				end
+				LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1"):Destroy()
 			end
 		end)
 	end
