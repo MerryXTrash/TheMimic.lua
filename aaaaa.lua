@@ -74,6 +74,7 @@ task.spawn(function()
 								LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
 							end
 							local bodyVelocity = Instance.new("BodyVelocity")
+							bodyVelocity.Name = "BodyVelocity1"
 							bodyVelocity.Parent = LocalPlayer.Character.HumanoidRootPart
 							bodyVelocity.velocity = Vector3.new(0, 0, 0)
 							bodyVelocity.maxForce = Vector3.new(100000, 100000, 100000)
