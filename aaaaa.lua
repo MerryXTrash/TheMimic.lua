@@ -844,6 +844,7 @@ EventsDD = General_1:CreateDropdown({
 })
 General_1:CreateToggle({Title = "ออโต้ตกปลาอีเว้นท์ที่เลือก",Value =_G.Config.AllEvents,Callback = function(value)
 	_G.Config.AllEvents=value
+	SaveSettings()
 end})
 task.spawn(function()
 	while task.wait() do
@@ -986,6 +987,7 @@ task.spawn(function()
 end)
 General_1:CreateToggle({Title = "ออโต้ขายปลาทุกตัวที่มี",Value =_G.Config.AutoSell,Callback = function(value)
 	_G.Config.AutoSell=value
+	SaveSettings()
 end})
 General_1:CreateButton({Title = "ขายปลาในมือ",Mode = 1,Callback = function()
 	game:GetService("ReplicatedStorage"):WaitForChild("events"):WaitForChild("Sell"):InvokeServer()
@@ -1001,6 +1003,7 @@ General_2:CreateSlider({
 	Value = _G.Config.DelaySell,
 	Callback = function(value)
 		_G.Config.DelaySell=value
+		SaveSettings()
 	end
 })
 task.spawn(function()
@@ -1314,6 +1317,7 @@ Item_2:CreateDropdown({
 	Multi = false,
 	Callback = function(value)
 		_G.Config.encs = value
+		SaveSettings()
 	end
 })
 Item_2:CreateButton({Title = "วาปไปที่เอนชาร์จ",Mode = 1,Callback = function()
@@ -1545,6 +1549,7 @@ Webhook_1 = _Webhook:CreateSection({Title = "การตั้งค่าเ�
 Webhook_2=_Webhook:CreateSection({Title = "การแสกงผล",Side = "Right"})
 Webhook_1:CreateTextbox({Title = "URL เว็บฮุก",Desc = "ใส่ URL เว็บฮุกของคุณ",ClearTextOnFocus = true,Value = _G.Config.web,Callback = function(value)
 	_G.Config.web=value
+	SaveSettings()
 end})
 Webhook_1:CreateSlider({
 	Title = "เวลา",
@@ -1554,6 +1559,7 @@ Webhook_1:CreateSlider({
 	Value = _G.Config.DelaySendWeb,
 	Callback = function(value)
 		_G.Config.DelaySendWeb = value
+		SaveSettings()
 	end
 })
 Webhook_1:CreateImage({
@@ -1564,6 +1570,7 @@ Webhook_1:CreateImage({
 	Value =  _G.Config.Webhook,
 	Callback = function(value)
 		_G.Config.Webhook = value
+		SaveSettings()
 	end})
 task.spawn(function()
 	while task.wait(_G.DelaySendWeb) do
