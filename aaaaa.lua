@@ -844,20 +844,24 @@ General_1:CreateSelect({
 		SaveSettings()
 	end,
 })
+_G.ModePos="Position"
 General_1:CreateSelect({
 	Title = "ตำแหน่ง",
 	Desc = "เลือกโหมด",
 	List = {"Position", "Automatic"},
-	Value = "Position",
+	Value = _G.ModePos,
 	Callback = function(value)
 		_G.ModePos = value
 	end,
 })
+_G.SelectCFrame = CFrame.new(-1243, 137, 632)
 General_1:CreateButton({
 	Title = "เซ็ตตำแหน่งตรงนี้",
 	Mode = 1,
 	Callback = function()
-		_G.SelectCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+		pcall(function()
+			_G.SelectCFrame=LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+		end)
 	end
 })
 EventsZone = {"Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
@@ -1657,3 +1661,23 @@ Webhook_2:CreateButton({Title = "รับเลเวลฟรี",Desc="ปล
 	end
 end})
 -------------------------------------------------------------------------------------------------------------------------------
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "Fetching's Script",
+	Text = "ต้องการลบการตั้งค่ารึป่าว",
+	Duration = 20,
+	Icon = "rbxassetid://128185233852701",
+	Button1 = "ยืนยัน",
+	Button2 = "ยกเลิก",
+	Callback = function(button)
+		if button == "ยืนยัน" then
+			if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
+				delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
+				print('Settings file deleted.')
+			else
+				print('No settings file found.')
+			end
+		elseif button == "ยกเลิก" then
+			print('Cancel')
+		end
+	end
+})
