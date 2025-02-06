@@ -9,7 +9,7 @@ RunService = game:GetService("RunService")
 if game.CoreGui:FindFirstChild("Synack")then game.CoreGui.Synack:Destroy()end
 VirtualInputManager=game:GetService("VirtualInputManager")
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
-Library=loadstring(game:HttpGet("https://raw.githubusercontent.com/darkhju888/testfish/refs/heads/main/nc.lua"))()
+Library=loadstring(game:HttpGet("https://raw.githubusercontent.com/G1GX/Fetching/refs/heads/main/Master/Fetch%25ngUI"))()
 local url = "https://raw.githubusercontent.com/MerrySubs4t/Softwork/refs/heads/main/UI/Emoji.module"
 local success, moduleSource = pcall(function()
 	return game:HttpGet(url)
@@ -47,8 +47,6 @@ end
 _G.Config = {
 	AutoFish = false,
 	ModeFishing = "Instant",
-	ModePos = "Position",
-	SelectCFrame = CFrame.new(358, 134, 239),
 	AutoSell = false,
 	DelaySell = 60,
 	SelectZoneEvents = {"Orcas Pool", "The Kraken Pool"},
@@ -58,6 +56,38 @@ _G.Config = {
 	Webhook = false,
 	DelaySendWeb = 60
 }
+task.spawn(function()
+	while task.wait() do
+		pcall(function()
+			if _G.Lock or _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark then
+				if syn then
+					setfflag("HumanoidParallelRemoveNoPhysics", "False")
+					setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
+					game.Players.LocalPlayer.Character.Humanoid:ChangeState(11)
+					if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
+						game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+					end
+				else
+					if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+						if not game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1") then
+							if game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit == true then
+								game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
+							end
+							local bodyVelocity = Instance.new("BodyVelocity")
+							bodyVelocity.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+							bodyVelocity.velocity = Vector3.new(0, 0, 0)
+							bodyVelocity.maxForce = Vector3.new(100000, 100000, 100000)
+						end
+					end
+				end
+			else
+				if game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1") then
+					game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity1"):Destroy()
+				end
+			end
+		end)
+	end
+end)
 function LoadSettings()
 	if readfile and writefile and isfile and isfolder then
 		if not isfolder("Fetching'Script") then
@@ -337,8 +367,10 @@ task.spawn(function()
 		realtime:Set('<font color="rgb(0, 255, 102)">Time : </font>' .. currentTime .. "/" .. currentDate .. "/" .. currentMonth .. "/" .. currentYear)
 	end
 end)
-
-Overview:CreateLabel({Title = '<font color="rgb(243, 255, 140)">แมพ : </font>' .. game:GetService("MarketplaceService"):GetProductInfo(_id).Name,Side = "Left"})
+pcall(function()
+	local IsTRUEgame=game:GetService("MarketplaceService"):GetProductInfo(_id).Name
+	Overview:CreateLabel({Title = '<font color="rgb(243, 255, 140)">แมพ : </font>' .. IsTRUEgame,Side = "Left"})
+end)
 Overview:CreateLabel({Title = '<font color="rgb(172, 133, 255)">ไอดีแมพ : </font>' .._id,Side = "Left"})
 Overview:CreateLabel({Title = '<font color="rgb(255, 194, 38)">ไอดีเซิร์ฟ : </font>' ..game.JobId,Side = "Left"})
 Playervalue1 = Overview:CreateLabel({Title = 'ผู้เล่นทั้งหมด : 0', Side = "Left"})
@@ -817,18 +849,16 @@ General_1:CreateSelect({
 	Title = "ตำแหน่ง",
 	Desc = "เลือกโหมด",
 	List = {"Position", "Automatic"},
-	Value = _G.Config.ModePos,
+	Value = "Position",
 	Callback = function(value)
-		_G.Config.ModePos = value
-		SaveSettings()
+		_G.ModePos = value
 	end,
 })
 General_1:CreateButton({
 	Title = "เซ็ตตำแหน่งตรงนี้",
 	Mode = 1,
 	Callback = function()
-		_G.Config.SelectCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-		SaveSettings()
+		_G.SelectCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 	end
 })
 EventsZone = {"Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
@@ -869,7 +899,7 @@ task.spawn(function()
 	end
 end)
 task.spawn(function()
-	while task.wait(0.1) do
+	while task.wait() do
 		if _G.Config.ModeFishing == "Safe" then
 			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark then
 				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
@@ -878,16 +908,9 @@ task.spawn(function()
 				end
 				if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
 					pcall(function()
-						for _, v in pairs(PlayerGui:GetChildren()) do
-							if v.Name == "shakeui" then
-								bu = v:FindFirstChild("button", true)
-								if bu then
-									GuiService.SelectedObject = bu
-									VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-									VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-								end
-							end
-						end
+						PlayerGui:FindFirstChild("shakeui").safezone:FindFirstChild("button").Size = UDim2.new(1001, 0, 1001, 0)
+						game:GetService("VirtualUser"):Button1Down(Vector2.new(1, 1))
+						game:GetService("VirtualUser"):Button1Up(Vector2.new(1, 1))
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
@@ -932,16 +955,16 @@ task.spawn(function()
 							if wsa then tp(CFrame.new(findheadpos(wsa))*CFrame.new(15, 5, 0))end
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						else
-							if _G.Config.ModePos == "Position" then
-								tp(_G.Config.SelectCFrame)
+							if _G.ModePos == "Position" then
+								tp(_G.SelectCFrame)
 								MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
 							end
 						end
 					end
 				end
 			else
-				if _G.Config.ModePos == "Position" then
-					tp(_G.Config.SelectCFrame)
+				if _G.ModePos == "Position" then
+					tp(_G.SelectCFrame)
 				end
 			end
 		end
@@ -1618,6 +1641,9 @@ end})
 Webhook_2:CreateButton({Title = "แก้แลค",Mode = 1,Callback = function()
 	FPSBooster()
 end})
+Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode = 1,Callback = function()
+	delfile("Fetching'Script")
+end})
 Webhook_2:CreateButton({Title = "ลบเอฟเฟคค์พายุใน Grand Reef",Mode = 1,Callback = function()
 	pcall(function()
 		workspace.StormEffect:Destroy()
@@ -1632,31 +1658,3 @@ Webhook_2:CreateButton({Title = "รับเลเวลฟรี",Desc="ปล
 	end
 end})
 -------------------------------------------------------------------------------------------------------------------------------
-task.spawn(function()
-	while task.wait() do
-		pcall(function()
-			if _G.Lock or _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark then
-				if not LocalPlayer.Character.HumanoidRootPart:FindFirstChild("Lock") or not LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiSpin") then
-					if LocalPlayer.Character:WaitForChildHumanoid("Humanoid").Sit == true then
-						LocalPlayer.Character:WaitForChild("Humanoid").Sit = false
-					end
-					local Noclip = Instance.new("BodyVelocity")
-					Noclip.Name = "Lock"
-					Noclip.Parent = LocalPlayer.Character.HumanoidRootPart
-					Noclip.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-					Noclip.Velocity = Vector3.new(0, 0, 0)
-					local bodyGyro = Instance.new("BodyGyro")
-					bodyGyro.Name = "AntiSpin"
-					bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-					bodyGyro.D = 100
-					bodyGyro.P = 10000
-					bodyGyro.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
-					bodyGyro.Parent = LocalPlayer.Character.HumanoidRootPart
-				end
-			else
-				LocalPlayer.Character.HumanoidRootPart:FindFirstChild("Lock"):Destroy()
-				LocalPlayer.Character.HumanoidRootPart:FindFirstChild("AntiSpin"):Destroy()
-			end
-		end)
-	end
-end)
