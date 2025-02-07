@@ -937,23 +937,6 @@ task.spawn(function()
 end)
 task.spawn(function()
 	while task.wait() do
-		if _G.Config.NoclipBobber then
-			if _G.Config.AutoFish then
-				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
-				if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
-					pcall(function()
-						local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
-						if bobber and bobber.CanCollide == true then
-							bobber.CanCollide = false
-						end
-					end)
-				end
-			end
-		end
-	end
-end)
-task.spawn(function()
-	while task.wait() do
 		if _G.Config.ModeFishing == "Safe" then
 			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark then
 				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
