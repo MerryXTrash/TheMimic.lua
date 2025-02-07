@@ -9,6 +9,7 @@ RunService = game:GetService("RunService")
 if game.CoreGui:FindFirstChild("Synack")then game.CoreGui.Synack:Destroy()end
 VirtualInputManager=game:GetService("VirtualInputManager")
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
+queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 Library=loadstring(game:HttpGet("https://raw.githubusercontent.com/G1GX/Fetching/refs/heads/main/Master/Fetch%25ngUI"))()
 local url = "https://raw.githubusercontent.com/MerrySubs4t/Softwork/refs/heads/main/UI/Emoji.module"
 local success, moduleSource = pcall(function()
@@ -45,6 +46,7 @@ function sendwebhook(url, data)
 	return success
 end
 _G.Config = {
+	AutoExc = true,
 	AutoFish = false,
 	ModeFishing = "Instant",
 	NoclipBobber = false,
@@ -58,6 +60,13 @@ _G.Config = {
 	Webhook = false,
 	DelaySendWeb = 60
 }
+local TeleportCheck = false
+LocalPlayer.OnTeleport:Connect(function(State)
+	if _G.Config.AutoExc and (not TeleportCheck) and queueteleport then
+		TeleportCheck = true
+		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/G1GX/Fetching/refs/heads/main/Master/Fisch.TH'))()")
+	end
+end)
 task.spawn(function()
 	while task.wait() do
 		pcall(function()
@@ -926,6 +935,8 @@ task.spawn(function()
 								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
 								if bobber and bobber.CanCollide == true then
 									bobber.CanCollide = false
+									task.wait(2)
+									bobber.Anchored = true
 								end
 							end)
 						end
@@ -958,6 +969,8 @@ task.spawn(function()
 								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
 								if bobber and bobber.CanCollide == true then
 									bobber.CanCollide = false
+									task.wait(2)
+									bobber.Anchored = true
 								end
 							end)
 						end
@@ -1757,14 +1770,6 @@ Webhook_2:CreateButton({Title = "แก้แลค",Mode = 1,Callback = functio
 		end)
 	end)
 end})
-Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode = 1,Callback = function()
-	if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
-		delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
-		Notify("Success", "Config has Delete.")
-	else
-		Notify("Warning", "Config not found.")
-	end
-end})
 Webhook_2:CreateButton({Title = "ลบเอฟเฟคค์พายุใน Grand Reef",Mode = 1,Callback = function()
 	pcall(function()
 		workspace.StormEffect:Destroy()
@@ -1796,6 +1801,18 @@ Webhook_2:CreateButton({Title = "โค้ด",Desc="ใส่โค้ดทั
 		game:GetService("ReplicatedStorage").events.runcode:FireServer(unpack(args))
 		task.wait(0.5)
 	end
+end})
+Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode = 1,Callback = function()
+	if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
+		delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
+		Notify("Success", "Config has Delete.")
+	else
+		Notify("Warning", "Config not found.")
+	end
+end})
+Webhook_2:CreateToggle({Title = "รันสคริปต์อัตโนมัติ",Value = _G.Config.AutoExc,Callback = function(value)
+	_G.Config.AutoExc = value
+	SaveSettings()
 end})
 -------------------------------------------------------------------------------------------------------------------------------
 game:GetService("StarterGui"):SetCore("SendNotification", {
