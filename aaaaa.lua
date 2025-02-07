@@ -919,7 +919,17 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
-					task.wait(1)
+					task.wait(1.5)
+					if _G.Config.NoclipBobber then
+						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
+							pcall(function()
+								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
+								if bobber and bobber.CanCollide == true then
+									bobber.CanCollide = false
+								end
+							end)
+						end
+					end
 				end
 			end
 		end
@@ -958,7 +968,17 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
-					task.wait(1)
+					task.wait(1.5)
+					if _G.Config.NoclipBobber then
+						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
+							pcall(function()
+								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
+								if bobber and bobber.CanCollide == true then
+									bobber.CanCollide = false
+								end
+							end)
+						end
+					end
 				end
 			end
 		end
@@ -1415,6 +1435,18 @@ end})
 task.spawn(function()
 	while task.wait() do
 		if _G.BaitCrate then
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
+			Click()
 			Click()
 			Click()
 			Click()
