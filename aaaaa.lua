@@ -1778,6 +1778,25 @@ Webhook_2:CreateButton({Title = "รับเลเวลฟรี",Desc="ปล
 		end
 	end
 end})
+Codes = {
+	"NorthernExpedition",
+	"RFG",
+	"NewYear",
+	"GOLDENTIDE",
+	"ATLANTEANSTORM",
+	"SORRYGUYS",
+	"CARBON",
+	"THEKRAKEN"
+}
+Webhook_2:CreateButton({Title = "โค้ด",Desc="ใส่โค้ดทั้งหมด",Mode = 2,Callback = function()
+	for i,v in pairs(Codes) do
+		local args = {
+			[1] = v
+		}
+		game:GetService("ReplicatedStorage").events.runcode:FireServer(unpack(args))
+		task.wait(0.5)
+	end
+end})
 -------------------------------------------------------------------------------------------------------------------------------
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "Fetching's Script",
