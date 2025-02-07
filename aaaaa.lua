@@ -10,6 +10,13 @@ if game.CoreGui:FindFirstChild("Synack")then game.CoreGui.Synack:Destroy()end
 VirtualInputManager=game:GetService("VirtualInputManager")
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
 queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+if not game:IsLoaded() then
+	local notLoaded = Instance.new("Message")
+	notLoaded.Parent = game:GetService("CoreGui")
+	notLoaded.Text = "Fetching wait for game Load.."
+	game.Loaded:Wait()
+	notLoaded:Destroy()
+end
 Library=loadstring(game:HttpGet("https://raw.githubusercontent.com/G1GX/Fetching/refs/heads/main/Master/Fetch%25ngUI"))()
 local url = "https://raw.githubusercontent.com/MerrySubs4t/Softwork/refs/heads/main/UI/Emoji.module"
 local success, moduleSource = pcall(function()
@@ -50,6 +57,7 @@ _G.Config = {
 	AutoFish = false,
 	ModeFishing = "Instant",
 	NoclipBobber = false,
+	Percentz = 100,
 	AutoSell = false,
 	DelaySell = 60,
 	SelectZoneEvents = {"Orcas Pool", "The Kraken Pool"},
@@ -377,10 +385,7 @@ task.spawn(function()
 		realtime:Set('<font color="rgb(0, 255, 102)">Time : </font>' .. currentTime .. "/" .. currentDate .. "/" .. currentMonth .. "/" .. currentYear)
 	end
 end)
-pcall(function()
-	local IsTRUEgame=game:GetService("MarketplaceService"):GetProductInfo(_id).Name
-	Overview:CreateLabel({Title = '<font color="rgb(243, 255, 140)">แมพ : </font>' .. IsTRUEgame,Side = "Left"})
-end)
+Overview:CreateLabel({Title = '<font color="rgb(243, 255, 140)">แมพ : Fisch</font>',Side = "Left"})
 Overview:CreateLabel({Title = '<font color="rgb(172, 133, 255)">ไอดีแมพ : </font>' .._id,Side = "Left"})
 Overview:CreateLabel({Title = '<font color="rgb(255, 194, 38)">ไอดีเซิร์ฟ : </font>' ..game.JobId,Side = "Left"})
 Playervalue1 = Overview:CreateLabel({Title = 'ผู้เล่นทั้งหมด : 0', Side = "Left"})
@@ -927,7 +932,7 @@ task.spawn(function()
 						game:GetService("VirtualUser"):Button1Up(Vector2.new(1, 1))
 					end)
 				else
-					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
+					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
 					task.wait(1.5)
 					if _G.Config.NoclipBobber then
 						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
@@ -935,8 +940,6 @@ task.spawn(function()
 								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
 								if bobber and bobber.CanCollide == true then
 									bobber.CanCollide = false
-									task.wait(2)
-									bobber.Anchored = true
 								end
 							end)
 						end
@@ -961,7 +964,7 @@ task.spawn(function()
 						game:GetService("VirtualUser"):Button1Up(Vector2.new(1, 1))
 					end)
 				else
-					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
+					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
 					task.wait(1.5)
 					if _G.Config.NoclipBobber then
 						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
@@ -969,8 +972,6 @@ task.spawn(function()
 								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
 								if bobber and bobber.CanCollide == true then
 									bobber.CanCollide = false
-									task.wait(2)
-									bobber.Anchored = true
 								end
 							end)
 						end
@@ -1068,6 +1069,7 @@ task.spawn(function()
 		end
 	end
 end)
+
 General_1:CreateToggle({Title = "ออโต้ขายปลาทุกตัวที่มี",Value =_G.Config.AutoSell,Callback = function(value)
 	_G.Config.AutoSell=value
 	SaveSettings()
@@ -1086,6 +1088,17 @@ General_2:CreateSlider({
 	Value = _G.Config.DelaySell,
 	Callback = function(value)
 		_G.Config.DelaySell=value
+		SaveSettings()
+	end
+})
+General_2:CreateSlider({
+	Title = "%",
+	Desc = "% Throw Rod",
+	Min = 5,
+	Max = 100,
+	Value = _G.Config.Percentz,
+	Callback = function(value)
+		_G.Config.Percentz = value
 		SaveSettings()
 	end
 })
