@@ -10,6 +10,7 @@ if game.CoreGui:FindFirstChild("Synack")then game.CoreGui.Synack:Destroy()end
 VirtualInputManager=game:GetService("VirtualInputManager")
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
 queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 if not game:IsLoaded() then
 	local notLoaded = Instance.new("Message")
 	notLoaded.Parent = game:GetService("CoreGui")
@@ -56,7 +57,6 @@ _G.Config = {
 	AutoExc = true,
 	AutoFish = false,
 	ModeFishing = "Instant",
-	NoclipBobber = false,
 	Percentz = 100,
 	AutoSell = false,
 	DelaySell = 60,
@@ -144,6 +144,7 @@ function SaveSettings()
 	end
 end
 LoadSettings()
+print("Isloaded")
 TRUE=EmojiModule:GetEmoji("Green")
 FALSE=EmojiModule:GetEmoji("Red")
 print(FALSE)
@@ -231,57 +232,29 @@ end
 Click=function()
 	game:GetService("VirtualUser"):CaptureController()
 	game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-	task.wait(0.50)
 end
-FPSBooster=function()
-	loadstr("https://pastebin.com/raw/GggANU4v")
-end
-HopServer = function(FullServer) -- Hop Server (Low)
-	local FullServer = FullServer or false
+HopServer = function()
+	if httprequest then
+		local servers = {}
+		local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", _id)})
+		local body = HttpService:JSONDecode(req.Body)
 
-	local Http = game:GetService("HttpService")
-	local Api = "https://games.roblox.com/v1/games/"
-
-	local _place = game.PlaceId
-	local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
-	local ListServers = function (cursor)
-		local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-		return Http:JSONDecode(Raw)
-	end
-
-	local Server, Next; repeat
-		local Servers = ListServers(Next)
-		Server = Servers.data[1]
-		Next = Servers.nextPageCursor
-	until Server
-	repeat
-		if not FullServer then
-			game:GetService("TeleportService"):TeleportToPlaceInstance(_place,Server.id,game.Players.LocalPlayer)
-		else
-			if request then
-				local servers = {}
-				local req = request(
-					{
-						Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)
-					}
-				).Body;
-				local body = game:GetService("HttpService"):JSONDecode(req)
-				if body and body.data then
-					for i, v in next, body.data do
-						if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
-							table.insert(servers, 1, v.id)
-						end
-					end
-				end
-				if #servers > 0 then
-					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
-				else
-					return "Couldn't find a server."
+		if body and body.data then
+			for i, v in next, body.data do
+				if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+					table.insert(servers, 1, v.id)
 				end
 			end
 		end
-		wait()
-	until game.PlaceId ~= game.PlaceId
+
+		if #servers > 0 then
+			game.TeleportService:TeleportToPlaceInstance(_id, servers[math.random(1, #servers)], LocalPlayer)
+		else
+			return Notify("Serverhop", "Couldn't find a server.", 3)
+		end
+	else
+		Notify("Incompatible Exploit", "Your exploit does not support this command (missing request)", 3)
+	end
 end
 ESP=function(obj, Color)
 	if not obj:FindFirstChild(";-;") then
@@ -839,7 +812,7 @@ loop(function()
 	end
 end)
 -------------------------------------------------------------------------------------------------------------------------------
-MainStatus=General_1:CreateLabel({Title = '<font color="rgb(255, 87, 87)">ตอนนี้คุณไม่ได้ทำอะไร</font>', Side = "Left"})
+MainStatus=General_1:CreateLabel({Title = '<font color="rgb(255, 87, 87)">ตอนนี้คุณไม่ได้ทำอะไร</font>', Side = "Center"})
 General_1:CreateImage({
 	Title = "ออโต้ตกปลา",
 	Desc = "ตกเร็วกว่าเวลาที่เขาจะรักมึงอีกไอควาย",
@@ -860,24 +833,26 @@ General_1:CreateSelect({
 		SaveSettings()
 	end,
 })
-_G.ModePos="Position"
 General_1:CreateSelect({
 	Title = "ตำแหน่ง",
 	Desc = "เลือกโหมด",
 	List = {"Position", "Automatic"},
-	Value = _G.ModePos,
+	Value = "Position",
 	Callback = function(value)
 		_G.ModePos = value
 	end,
 })
 _G.SelectCFrame = CFrame.new(-1243, 137, 632)
+function savepos()
+	pcall(function()
+		_G.SelectCFrame=LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+	end)
+end
 General_1:CreateButton({
 	Title = "เซ็ตตำแหน่งตรงนี้",
 	Mode = 1,
 	Callback = function()
-		pcall(function()
-			_G.SelectCFrame=LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
-		end)
+		savepos()
 	end
 })
 EventsZone = {"Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
@@ -899,21 +874,16 @@ General_1:CreateToggle({Title = "เปลี่ยนเซิฟหาปล�
 	_G.Config.Hopserver=value
 	SaveSettings()
 end})
-IsEventsFish = false
 task.spawn(function()
-	while task.wait(1) do
+	while task.wait() do
 		if _G.Config.Hopserver then
-			for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-				if table.find(_G.Config.SelectZoneEvents, v.Name) then  
-					IsEventsFish = true
-				else
-					HopServer(true)
-					if IsEventsFish then
-						IsEventsFish = false
-						Notify("HOP Server", "Starting to HOP", 5)
+			pcall(function()
+				for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+					if not table.find(_G.Config.SelectZoneEvents, v.Name) then  
+						HopServer()
 					end
 				end
-			end
+			end)
 		end
 	end
 end)
@@ -933,25 +903,10 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					task.wait(1.5)
-					if _G.Config.NoclipBobber then
-						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
-							pcall(function()
-								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
-								if bobber and bobber.CanCollide == true then
-									bobber.CanCollide = false
-								end
-							end)
-						end
-					end
+					task.wait(1)
 				end
 			end
-		end
-	end
-end)
-task.spawn(function()
-	while task.wait() do
-		if _G.Config.ModeFishing == "Safe" then
+		else
 			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark then
 				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
 				if Backpack:FindFirstChild(RodName) then
@@ -965,17 +920,7 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					task.wait(1.5)
-					if _G.Config.NoclipBobber then
-						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
-							pcall(function()
-								local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
-								if bobber and bobber.CanCollide == true then
-									bobber.CanCollide = false
-								end
-							end)
-						end
-					end
+					task.wait(1)
 				end
 			end
 		end
@@ -1017,15 +962,22 @@ task.spawn(function()
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						else
 							if _G.ModePos == "Position" then
-								tp(_G.SelectCFrame)
-								MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
+								pcall(function()
+									tp(_G.SelectCFrame)
+									MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
+								end)
 							end
 						end
 					end
 				end
 			else
 				if _G.ModePos == "Position" then
-					tp(_G.SelectCFrame)
+					pcall(function()
+						tp(_G.SelectCFrame)
+						if not _G.Config.AllEvents then
+							MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
+						end
+					end)
 				end
 			end
 		end
@@ -1093,7 +1045,7 @@ General_2:CreateSlider({
 })
 General_2:CreateSlider({
 	Title = "%",
-	Desc = "% Throw Rod",
+	Desc = "% โยนเบ็ด",
 	Min = 5,
 	Max = 100,
 	Value = _G.Config.Percentz,
@@ -1109,10 +1061,6 @@ task.spawn(function()
 		end
 	end
 end)
-General_2:CreateToggle({Title = "เหยื่อทะลุพื้นหรือสิ่งของ",Value = _G.Config.NoclipBobber,Callback = function(value)
-	_G.Config.NoclipBobber = value
-	SaveSettings()
-end})
 General_2:CreateToggle({Title = "การแจ้งเตือน",Value = true,Callback = function(value)
 	pcall(function()
 		game:GetService("Players").LocalPlayer.PlayerGui.hud.safezone.announcements.Visible = value
@@ -1442,7 +1390,7 @@ Item_3:CreateToggle({Title = "ออโต้ใช้กล่องเหย�
 	_G.BaitCrate = value
 end})
 task.spawn(function()
-	while task.wait() do
+	while task.wait(.1) do
 		if _G.BaitCrate then
 			Click()
 			Click()
@@ -1839,12 +1787,13 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		if button == "ยืนยัน" then
 			if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
 				delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
-				Notify("Success", "Config has Delete.")
+				Notify("Success", "Config has Delete.", 5)
 			else
-				Notify("Warning", "Config not found.")
+				Notify("Warning", "Config not found.", 5)
 			end
 		elseif button == "ยกเลิก" then
 			print('Cancel')
 		end
 	end
 })
+print("Check Success")
