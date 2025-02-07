@@ -47,10 +47,12 @@ end
 _G.Config = {
 	AutoFish = false,
 	ModeFishing = "Instant",
+	NoclipBobber = false,
 	AutoSell = false,
 	DelaySell = 60,
 	SelectZoneEvents = {"Orcas Pool", "The Kraken Pool"},
 	AllEvents = false,
+	Hopserver = false,
 	encs = "Hasty",
 	web = "ใส่ URL",
 	Webhook = false,
@@ -875,10 +877,32 @@ EventsDD = General_1:CreateDropdown({
 		SaveSettings()
 	end
 })
-General_1:CreateToggle({Title = "ออโต้ตกปลาอีเว้นท์ที่เลือก",Value =_G.Config.AllEvents,Callback = function(value)
+General_1:CreateToggle({Title = "เปิดโหมดตกปลาอีเว้นท์",Value =_G.Config.AllEvents,Callback = function(value)
 	_G.Config.AllEvents=value
 	SaveSettings()
 end})
+General_1:CreateToggle({Title = "เปลี่ยนเซิฟหาปลาอีเว้นท์ที่เลือก",Value =_G.Config.Hopserver,Callback = function(value)
+	_G.Config.Hopserver=value
+	SaveSettings()
+end})
+IsEventsFish = false
+task.spawn(function()
+	while task.wait(1) do
+		if _G.Config.Hopserver then
+			for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+				if table.find(_G.Config.SelectZoneEvents, v.Name) then  
+					IsEventsFish = true
+				else
+					HopServer(true)
+					if IsEventsFish then
+						IsEventsFish = false
+						Notify("HOP Server", "Starting to HOP", 5)
+					end
+				end
+			end
+		end
+	end
+end)
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.ModeFishing == "Instant" then
@@ -896,6 +920,23 @@ task.spawn(function()
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(100)
 					task.wait(1)
+				end
+			end
+		end
+	end
+end)
+task.spawn(function()
+	while task.wait() do
+		if _G.Config.NoclipBobber then
+			if _G.Config.AutoFish then
+				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
+				if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
+					pcall(function()
+						local bobber = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
+						if bobber and bobber.CanCollide == true then
+							bobber.CanCollide = false
+						end
+					end)
 				end
 			end
 		end
@@ -1039,6 +1080,10 @@ task.spawn(function()
 		end
 	end
 end)
+General_2:CreateToggle({Title = "เหยื่อทะลุพื้นหรือสิ่งของ",Value = _G.Config.NoclipBobber,Callback = function(value)
+	_G.Config.NoclipBobber = value
+	SaveSettings()
+end})
 General_2:CreateToggle({Title = "การแจ้งเตือน",Value = true,Callback = function(value)
 	pcall(function()
 		game:GetService("Players").LocalPlayer.PlayerGui.hud.safezone.announcements.Visible = value
@@ -1364,6 +1409,18 @@ Item_3:CreateSelect({
 Item_3:CreateToggle({Title = "ออโต้ใช้โทเทมเร่งเวลา",Value = _G.AutoSund,Callback = function(value)
 	_G.AutoSund=value
 end})
+Item_3:CreateToggle({Title = "ออโต้ใช้กล่องเหยื่อ [ ถือก่อนเปิด ]",Value = _G.BaitCrate,Callback = function(value)
+	_G.BaitCrate = value
+end})
+task.spawn(function()
+	while task.wait() do
+		if _G.BaitCrate then
+			Click()
+			Click()
+			Click()
+		end
+	end
+end)
 task.spawn(function()
 	while task.wait(2.5) do
 		if _G.AutoSund then
@@ -1534,6 +1591,8 @@ TP_4:CreateButton({Title = "วาปไปโวนที่ดีที่ส�
 		tp(CFrame.new(-3658, 132, 784))
 	elseif bestzone == "Ancient Isle - Waterfall" then
 		tp(CFrame.new(5803, 135, 404))
+	elseif bestzone == "Kraken Pool" then
+		tp(CFrame.new(-4313, -996, 2057))
 	else
 		Notify("Error", "Please Select Zone ;-;", 5)
 	end
@@ -1642,10 +1701,54 @@ Webhook_2:CreateButton({Title = "ทำให้กราฟฟิกสบา�
 	end
 end})
 Webhook_2:CreateButton({Title = "แก้แลค",Mode = 1,Callback = function()
-	FPSBooster()
+	local Terrain = workspace:FindFirstChildOfClass('Terrain')
+	Terrain.WaterWaveSize = 0
+	Terrain.WaterWaveSpeed = 0
+	Terrain.WaterReflectance = 0
+	Terrain.WaterTransparency = 0
+	game.Lighting.GlobalShadows = false
+	game.Lighting.FogEnd = 9e9
+	settings().Rendering.QualityLevel = 1
+	for i,v in pairs(game:GetDescendants()) do
+		if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+			v.Material = "Plastic"
+			v.Reflectance = 0
+		elseif v:IsA("Decal") then
+			v.Transparency = 1
+		elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Lifetime = NumberRange.new(0)
+		elseif v:IsA("Explosion") then
+			v.BlastPressure = 1
+			v.BlastRadius = 1
+		end
+	end
+	for i,v in pairs(game.Lighting:GetDescendants()) do
+		if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+			v.Enabled = false
+		end
+	end
+	workspace.DescendantAdded:Connect(function(child)
+		task.spawn(function()
+			if child:IsA('ForceField') then
+				RunService.Heartbeat:Wait()
+				child:Destroy()
+			elseif child:IsA('Sparkles') then
+				RunService.Heartbeat:Wait()
+				child:Destroy()
+			elseif child:IsA('Smoke') or child:IsA('Fire') then
+				RunService.Heartbeat:Wait()
+				child:Destroy()
+			end
+		end)
+	end)
 end})
 Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode = 1,Callback = function()
-	delfile("Fetching'Script")
+	if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
+		delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
+		Notify("Success", "Config has Delete.")
+	else
+		Notify("Warning", "Config not found.")
+	end
 end})
 Webhook_2:CreateButton({Title = "ลบเอฟเฟคค์พายุใน Grand Reef",Mode = 1,Callback = function()
 	pcall(function()
@@ -1672,9 +1775,9 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		if button == "ยืนยัน" then
 			if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
 				delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
-				print('Settings file deleted.')
+				Notify("Success", "Config has Delete.")
 			else
-				print('No settings file found.')
+				Notify("Warning", "Config not found.")
 			end
 		elseif button == "ยกเลิก" then
 			print('Cancel')
