@@ -233,28 +233,52 @@ Click=function()
 	game:GetService("VirtualUser"):CaptureController()
 	game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
 end
-HopServer = function()
-	if httprequest then
-		local servers = {}
-		local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", _id)})
-		local body = HttpService:JSONDecode(req.Body)
+HopServer = function(FullServer) -- Hop Server (Low)
+	local FullServer = FullServer or false
 
-		if body and body.data then
-			for i, v in next, body.data do
-				if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
-					table.insert(servers, 1, v.id)
+	local Http = game:GetService("HttpService")
+	local Api = "https://games.roblox.com/v1/games/"
+
+	local _place = game.PlaceId
+	local _servers = Api.._place.."/servers/Public?sortOrder=Asc&limit=100"
+	local ListServers = function (cursor)
+		local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+		return Http:JSONDecode(Raw)
+	end
+
+	local Server, Next; repeat
+		local Servers = ListServers(Next)
+		Server = Servers.data[1]
+		Next = Servers.nextPageCursor
+	until Server
+	repeat
+		if not FullServer then
+			game:GetService("TeleportService"):TeleportToPlaceInstance(_place,Server.id,game.Players.LocalPlayer)
+		else
+			if request then
+				local servers = {}
+				local req = request(
+					{
+						Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.PlaceId)
+					}
+				).Body;
+				local body = game:GetService("HttpService"):JSONDecode(req)
+				if body and body.data then
+					for i, v in next, body.data do
+						if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+							table.insert(servers, 1, v.id)
+						end
+					end
+				end
+				if #servers > 0 then
+					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
+				else
+					return "Couldn't find a server."
 				end
 			end
 		end
-
-		if #servers > 0 then
-			game.TeleportService:TeleportToPlaceInstance(_id, servers[math.random(1, #servers)], LocalPlayer)
-		else
-			return Notify("Serverhop", "Couldn't find a server.", 3)
-		end
-	else
-		Notify("Incompatible Exploit", "Your exploit does not support this command (missing request)", 3)
-	end
+		wait()
+	until game.PlaceId ~= game.PlaceId
 end
 ESP=function(obj, Color)
 	if not obj:FindFirstChild(";-;") then
@@ -833,28 +857,6 @@ General_1:CreateSelect({
 		SaveSettings()
 	end,
 })
-General_1:CreateSelect({
-	Title = "ตำแหน่ง",
-	Desc = "เลือกโหมด",
-	List = {"Position", "Automatic"},
-	Value = "Position",
-	Callback = function(value)
-		_G.ModePos = value
-	end,
-})
-_G.SelectCFrame = CFrame.new(-1243, 137, 632)
-function savepos()
-	pcall(function()
-		_G.SelectCFrame=LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
-	end)
-end
-General_1:CreateButton({
-	Title = "เซ็ตตำแหน่งตรงนี้",
-	Mode = 1,
-	Callback = function()
-		savepos()
-	end
-})
 EventsZone = {"Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
 EventsDD = General_1:CreateDropdown({
 	Title = "เลือกปลาอีเว้นท์",
@@ -880,7 +882,7 @@ task.spawn(function()
 			pcall(function()
 				for _, v in pairs(workspace.zones.fishing:GetChildren()) do
 					if not table.find(_G.Config.SelectZoneEvents, v.Name) then  
-						HopServer()
+						HopServer(true)
 					end
 				end
 			end)
@@ -960,24 +962,8 @@ task.spawn(function()
 							local wsa = workspace:FindFirstChild("Whale Shark", true)
 							if wsa then tp(CFrame.new(findheadpos(wsa))*CFrame.new(15, 5, 0))end
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
-						else
-							if _G.ModePos == "Position" then
-								pcall(function()
-									tp(_G.SelectCFrame)
-									MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
-								end)
-							end
 						end
 					end
-				end
-			else
-				if _G.ModePos == "Position" then
-					pcall(function()
-						tp(_G.SelectCFrame)
-						if not _G.Config.AllEvents then
-							MainStatus:Set('<font color="rgb(203, 255, 105)">ตุณกำลังตกปลาที่ : ตำแหน่งที่เซฟไว้</font>')
-						end
-					end)
 				end
 			end
 		end
