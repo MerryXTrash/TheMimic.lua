@@ -1931,14 +1931,14 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 })
 print("All is Success: " ..LocalPlayer.Name)
 for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-	if table.find(EventsZone, v.Name) then 
+	if table.find(EventsZone, v.Name) then
 		local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
 			["content"] = "",
 			["embeds"] = {
 				{
 					["id"] = 661605297,
 					["title"] = "Events",
-					["description"] = v.Name,
+					["description"] = v.Name .. "\n```" .. game.JobId .. "```",
 					["color"] = 16777215,
 					["fields"] = {},
 					["thumbnail"] = {
@@ -1951,11 +1951,12 @@ for _, v in pairs(workspace.zones.fishing:GetChildren()) do
 				}
 			}
 		})
+
 		if success then
-			print("Sender has blocked.")
-			print("Sender has fuck your mom")
+			print("Webhook successfully sent.")
 		else
-			print("encoding")
+			print("Error in sending webhook.")
 		end
 	end
 end
+
