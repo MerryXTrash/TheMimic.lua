@@ -569,9 +569,9 @@ task.spawn(function()
 		local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 		if rootPart then
 			local positionString = string.format("Position : %.2f, %.2f, %.2f", rootPart.Position.X, rootPart.Position.Y, rootPart.Position.Z)
-			Positionval2:Set(positionString)
+			Positionval1:Set(positionString)
 		else
-			Positionval2:Set("Position : nil")
+			Positionval1:Set("Position : nil")
 		end
 	end
 end)
@@ -587,6 +587,7 @@ General_2_2:CreateButton({Title = "บันทึกตำแหน่งปั
 	pcall(function()
 		_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
 		positionDropdown:AddList(_G.Config.Name)
+		SaveSettings()
 	end)
 end})
 General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก",Mode = 1,Callback = function()
