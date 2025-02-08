@@ -601,7 +601,7 @@ end})
 General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก", Mode = 1, Callback = function()
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = selectedPosition
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(selectedPosition)
 	else
 		Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง.", 3)
 	end
