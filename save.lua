@@ -130,7 +130,6 @@ function LoadSettings()
 		return warn("Executor is Not Support")
 	end
 end
-
 function SaveSettings()
 	if readfile and writefile and isfile and isfolder then
 		local configFile = "Fetching'Script/Config" .. LocalPlayer.Name .. ".json"
@@ -582,6 +581,7 @@ positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแ
 	_G.Config.SelectPosition = value
 	SaveSettings()
 end})
+
 General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่ง", Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก", ClearTextOnFocus = true, Value = _G.Config.Name, Callback = function(value)
 	_G.Config.Name = value
 	SaveSettings()
@@ -602,10 +602,12 @@ General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งท
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
 		LocalPlayer.Character.HumanoidRootPart.CFrame = selectedPosition
+	else
+		Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง.", 3)
 	end
 end})
 General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
-	_G.Config.Positions[_G.Config.SelectPosition] = "nil"
+	_G.Config.Positions[_G.Config.SelectPosition] = nil
 	positionDropdown:Clear()
 	for name, _ in pairs(_G.Config.Positions) do
 		positionDropdown:AddList(name)
@@ -2009,64 +2011,49 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 task.spawn(function()
 	print("All is Success: " .. LocalPlayer.Name)
 	local EventsZoneWeb = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
-	for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-		if table.find(EventsZoneWeb, v.Name) then
-			local currentTime = os.date("!*t")
-			local timestamp = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", currentTime.year, currentTime.month, currentTime.day, currentTime.hour, currentTime.min, currentTime.sec)
-			local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
-				["content"] = "",
-				["embeds"] = {
-					{
-						["id"] = 661605297,
-						["title"] = "Events",
-						["description"] = v.Name .. "\n```" .. game.JobId .. "```",
-						["color"] = 16777215,
-						["fields"] = {},
-						["thumbnail"] = {
-							["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-						},
-						["footer"] = {
-							["text"] = "Fetching Notify\n" .. timestamp,
-							["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-						}
+	function sendEventNotification(zoneName)
+		local currentTime = os.date("%H:%M:%S") -- Properly formatted timestamp
+		local playerCount = game.Players.NumPlayers
+		local maxPlayers = 15
+		local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
+			["content"] = "",
+			["embeds"] = {
+				{
+					["id"] = 661605297,
+					["title"] = "Events",
+					["description"] = zoneName .. "\n```" .. game.JobId .. "```" .. "\nจำนวนผู้เล่น: " .. playerCount .. "/" .. maxPlayers,
+					["color"] = 16777215,
+					["fields"] = {},
+					["thumbnail"] = {
+						["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+					},
+					["footer"] = {
+						["text"] = "Fetching Notify\n" .. currentTime,
+						["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
 					}
 				}
-			})
-			if success then
-				print("Webhook successfully sent.")
-			else
-				print("Error in sending webhook.")
-			end
+			}
+		})
+
+		if success then
+			print("Webhook successfully sent for " .. zoneName)
+		else
+			print("Error in sending webhook for " .. zoneName)
 		end
 	end
-	workspace.zones.fishing.ChildAdded:Connect(function(child)
-		if table.find(EventsZoneWeb, child.Name) then
-			local currentTime = os.date("!*t")
-			local timestamp = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", currentTime.year, currentTime.month, currentTime.day, currentTime.hour, currentTime.min, currentTime.sec)
-			local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
-				["content"] = "",
-				["embeds"] = {
-					{
-						["id"] = 661605297,
-						["title"] = "Events",
-						["description"] = child.Name .. "\n```" .. game.JobId .. "```",
-						["color"] = 16777215,
-						["fields"] = {},
-						["thumbnail"] = {
-							["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-						},
-						["footer"] = {
-							["text"] = "Fetching Notify\n" .. timestamp,
-							["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-						}
-					}
-				}
-			})
-			if success then
-				print("Webhook successfully sent for new child.")
-			else
-				print("Error in sending webhook for new child.")
+	local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
+	if fishingZones then
+		for _, v in pairs(fishingZones:GetChildren()) do
+			if table.find(EventsZoneWeb, v.Name) then
+				sendEventNotification(v.Name)
 			end
 		end
-	end)
+		fishingZones.ChildAdded:Connect(function(child)
+			if table.find(EventsZoneWeb, child.Name) then
+				sendEventNotification(child.Name)
+			end
+		end)
+	else
+		warn("Fishing zones not found in workspace.")
+	end
 end)
