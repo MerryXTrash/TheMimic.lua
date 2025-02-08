@@ -1431,24 +1431,27 @@ end})
 task.spawn(function()
 	while task.wait() do
 		if _G.ChestSSS then
-			for _, v in pairs(workspace.world.chests:GetChildren()) do
-				if v:IsA("Part") then
-					if v:FindFirstChild("ChestClosed") then
-						tp(v.CFrame)
-						findfire(v)
+			if not workspace.world.chests:FindFirstChildOfClass("Part") and not workspace.world.chests:FindFirstChild("ChestClosed", true) then
+				tp(CFrame.new(-2825, 215, 1518))
+				task.wait()
+				if Backpack:FindFirstChild("Treasure Map") then
+					if not LocalPlayer.Character:FindFirstChild("Treasure Map") then
+						Backpack:FindFirstChild("Treasure Map").Parent = LocalPlayer.Character
+						pcall(function()
+							workspace.world.npcs:FindFirstChild("Jack Marrow").treasure.repairmap:InvokeServer()
+						end)
 					end
 				else
-					tp(CFrame.new(-2825, 215, 1518))
-					task.wait()
-					if Backpack:FindFirstChild("Treasure Map") then
-						if not LocalPlayer.Character:FindFirstChild("Treasure Map") then
-							Backpack:FindFirstChild("Treasure Map").Parent = LocalPlayer.Character
-							pcall(function()
-								workspace.world.npcs:FindFirstChild("Jack Marrow").treasure.repairmap:InvokeServer()
-							end)
+					Notify("Treasure Map", "Not Found in Backpack", 1)
+				end
+			end
+			if workspace.world.chests:FindFirstChildOfClass("Part") and workspace.world.chests:FindFirstChild("ChestClosed", true) then
+				for _, v in pairs(workspace.world.chests:GetChildren()) do
+					if v:IsA("Part") then
+						if v:FindFirstChild("ChestClosed") then
+							tp(v.CFrame)
+							findfire(v)
 						end
-					else
-						Notify("Treasure Map", "Not Found in Backpack", 5)
 					end
 				end
 			end
