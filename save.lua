@@ -575,7 +575,7 @@ task.spawn(function()
 		end
 	end
 end)
-positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้",List = {},Value = _G.Config.SelectPosition,Multi = false,Callback = function(value)
+positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้",List = _G.Config.Save,Value = _G.Config.SelectPosition,Multi = false,Callback = function(value)
 	_G.Config.SelectPosition = value
 	SaveSettings()
 end})
@@ -583,13 +583,18 @@ General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่�
 	_G.Config.Name = value
 	SaveSettings()
 end})
-General_2_2:CreateButton({Title = "บันทึกตำแหน่งปัจจุบัน",Mode = 1,Callback = function()
+General_2_2:CreateButton({Title = "บันทึกตำแหน่งปัจจุบัน", Mode = 1, Callback = function()
 	pcall(function()
-		_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
-		positionDropdown:AddList(_G.Config.Name)
-		SaveSettings()
+		if _G.Config.Positions[_G.Config.Name] then
+			Notify("Name", "Don't use Same Name..", 3)
+		else
+			_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
+			positionDropdown:AddList(_G.Config.Name)
+			SaveSettings()
+		end
 	end)
 end})
+
 General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก",Mode = 1,Callback = function()
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
