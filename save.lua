@@ -143,6 +143,7 @@ function SaveSettings()
 				tablex[i] = v
 			end
 			tablex["Save"] = _G.Config.Save
+			tablex["Positions"] = _G.Config.Positions
 			writefile(configFile, game:GetService("HttpService"):JSONEncode(tablex))
 		end
 	else
@@ -604,18 +605,12 @@ General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งท
 	end
 end})
 General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
-	_G.Config.Positions[_G.Config.SelectPosition] = nil
-	for i, name in ipairs(_G.Config.Save) do
-		if name == _G.Config.SelectPosition then
-			table.remove(_G.Config.Save, i)
-			break
-		end
-	end
+	_G.Config.Positions[_G.Config.SelectPosition] = "nil"
 	positionDropdown:Clear()
 	for name, _ in pairs(_G.Config.Positions) do
 		positionDropdown:AddList(name)
+		SaveSettings()
 	end
-	SaveSettings()
 end})
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
