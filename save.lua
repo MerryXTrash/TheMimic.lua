@@ -667,7 +667,7 @@ end})
 alove=General_4:CreateToggle({Title = "ออโต้ตกปลาไหลแห่งความรัก",Value =_G.loveEel,Callback = function(value)
 	_G.loveEel=value
 end})
-aisoned=General_4:CreateToggle({Title = "ออโต้ตกปลาไหลแห่งความรัก",Value =_G.Isoned,Callback = function(value)
+aisoned=General_4:CreateToggle({Title = "ออโต้ตกไอโซเนด",Value =_G.Isoned,Callback = function(value)
 	_G.Isoned=value
 end})
 a6=General_4:CreateButton({Title = "วาปไปหาพ่อค้านักเดินทาง",Mode = 1,Callback = function()
@@ -760,7 +760,7 @@ task.spawn(function()
 	while task.wait() do
 		if _G.Isoned then
 			local gws = workspace:FindFirstChild("Isonade", true)
-			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
+			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 15, 0))end
 		end
 	end
 end)
