@@ -67,9 +67,11 @@ _G.Config = {
 	encs = "Hasty",
 	web = "ใส่ URL",
 	Webhook = false,
-	DelaySendWeb = 60
+	DelaySendWeb = 60,
+	SelectPosition = "",
+	Save = {},
+	Positions = {}
 }
-_G.SavePosition={}
 local TeleportCheck = false
 LocalPlayer.OnTeleport:Connect(function(State)
 	if _G.Config.AutoExc and (not TeleportCheck) and queueteleport then
@@ -560,6 +562,47 @@ end})
 -------------------------------------------------------------------------------------------------------------------------------
 _General = _Window:CreateTab({Title = "ทั่วไป",Desc = "อัตโนมัติ",Icon = 83854127275050})
 General_1 = _General:CreateSection({Title = "การตกปลา",Side = "Left"})
+General_2_2 = _General:CreateSection({Title = "การตั่งค่าตำแหน่ง",Side = "Right"})
+Positionval1=General_2_2:CreateLabel({Title = 'ตำแหน่งตอนนี้ : nil',Side = "Left"})
+task.spawn(function()
+	while task.wait(0.1) do
+		local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if rootPart then
+			local positionString = string.format("Position : %.2f, %.2f, %.2f", rootPart.Position.X, rootPart.Position.Y, rootPart.Position.Z)
+			Positionval2:Set(positionString)
+		else
+			Positionval2:Set("Position : nil")
+		end
+	end
+end)
+positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้",List = {},Value = _G.Config.SelectPosition,Multi = false,Callback = function(value)
+	_G.Config.SelectPosition = value
+	SaveSettings()
+end})
+General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่ง",Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก",ClearTextOnFocus = true,Value = _G.Config.Name,Callback = function(value)
+	_G.Config.Name = value
+	SaveSettings()
+end})
+General_2_2:CreateButton({Title = "บันทึกตำแหน่งปัจจุบัน",Mode = 1,Callback = function()
+	pcall(function()
+		_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
+		positionDropdown:AddList(_G.Config.Name)
+	end)
+end})
+General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก",Mode = 1,Callback = function()
+	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
+	if selectedPosition then
+		LocalPlayer.Character.HumanoidRootPart.CFrame = selectedPosition
+	end
+end})
+General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก",Mode = 1,Callback = function()
+	_G.Config.Positions[_G.Config.SelectPosition] = nil
+	positionDropdown:Clear()
+	for name, _ in pairs(_G.Config.Positions) do
+		positionDropdown:AddList(name)
+	end
+end})
+
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
 -------------------------------------------------------------------------------------------------------------------------------
 General_3 = _General:CreateSection({Title = "สเตตัสโลกตอนนี้",Side = "Right"})
@@ -591,6 +634,7 @@ GreatHammerS = General_3:CreateLabel({Title = '<font color="rgb(255, 0, 195)">�
 WhaleShark = General_3:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ฉลามวาฬ : </font>' .. FALSE,Side = "Left"})
 Orca=General_3:CreateLabel({Title = '<font color="rgb(66, 173, 255)">วาฬเพชฌฆาต : </font>' .. FALSE,Side = "Left"})
 Gwshark = General_3:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ฉลามขาวขนาดใหญ่ : </font>' .. FALSE,Side = "Left"})
+Ison = General_3:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ไอโซเนด : </font>' .. FALSE,Side = "Left"})
 meteo=General_3:CreateLabel({Title = '<font color="rgb(255, 85, 0)">อุกกาบาต : </font>' .. FALSE,Side = "Left"})
 tvmerchant=General_3:CreateLabel({Title = '<font color="rgb(81, 255, 0)">พ่อค้านักเดินทาง : </font>' .. FALSE,Side = "Left"})
 cSunken=General_3:CreateLabel({Title = '<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE,Side = "Left"})
@@ -622,6 +666,9 @@ a9=General_4:CreateToggle({Title = "ออโต้ตกฉลามขาว�
 end})
 alove=General_4:CreateToggle({Title = "ออโต้ตกปลาไหลแห่งความรัก",Value =_G.loveEel,Callback = function(value)
 	_G.loveEel=value
+end})
+aisoned=General_4:CreateToggle({Title = "ออโต้ตกปลาไหลแห่งความรัก",Value =_G.Isoned,Callback = function(value)
+	_G.Isoned=value
 end})
 a6=General_4:CreateButton({Title = "วาปไปหาพ่อค้านักเดินทาง",Mode = 1,Callback = function()
 	local thePlace = workspace:FindFirstChild("Travelling Merchant", true)
@@ -687,6 +734,18 @@ loop(function()
 		cSunken:Set('<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE)
 	end
 end)
+loop(function()
+	local love = workspace:FindFirstChild("Isonade", true)
+	if love then
+		Ison:SetVisible(true)
+		Ison:Set('<font color="rgb(255, 0, 195)">ไอโซเนด : </font>' .. TRUE)
+		aisoned:SetVisible(true)
+	else
+		Ison:SetVisible(false)
+		Ison:Set('<font color="rgb(255, 0, 195)">ไอโซเนด : </font>' .. FALSE)
+		aisoned:SetVisible(false)
+	end
+end)
 a7=General_4:CreateButton({Title = "วาปไปหาอุกกาบาต",Mode = 1,Callback = function()
 	local thePlace = workspace.MeteorItems:FindFirstChildOfClass("Model")
 	if thePlace and thePlace:IsA("Model") then
@@ -697,6 +756,14 @@ a7=General_4:CreateButton({Title = "วาปไปหาอุกกาบา�
 		Notify("Error", "Could not find the NPC.")
 	end
 end})
+task.spawn(function()
+	while task.wait() do
+		if _G.Isoned then
+			local gws = workspace:FindFirstChild("Isonade", true)
+			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
+		end
+	end
+end)
 task.spawn(function()
 	while task.wait() do
 		if _G.loveEel then
@@ -1929,34 +1996,67 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		end
 	end
 })
-print("All is Success: " ..LocalPlayer.Name)
-for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-	if table.find(EventsZone, v.Name) then
-		local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
-			["content"] = "",
-			["embeds"] = {
-				{
-					["id"] = 661605297,
-					["title"] = "Events",
-					["description"] = v.Name .. "\n```" .. game.JobId .. "```",
-					["color"] = 16777215,
-					["fields"] = {},
-					["thumbnail"] = {
-						["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-					},
-					["footer"] = {
-						["text"] = "Fetching Notify",
-						["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+task.spawn(function()
+	print("All is Success: " .. LocalPlayer.Name)
+	local EventsZoneWeb = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
+	for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+		if table.find(EventsZoneWeb, v.Name) then
+			local currentTime = os.date("!*t")
+			local timestamp = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", currentTime.year, currentTime.month, currentTime.day, currentTime.hour, currentTime.min, currentTime.sec)
+			local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
+				["content"] = "",
+				["embeds"] = {
+					{
+						["id"] = 661605297,
+						["title"] = "Events",
+						["description"] = v.Name .. "\n```" .. game.JobId .. "```",
+						["color"] = 16777215,
+						["fields"] = {},
+						["thumbnail"] = {
+							["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+						},
+						["footer"] = {
+							["text"] = "Fetching Notify\n" .. timestamp,
+							["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+						}
 					}
 				}
-			}
-		})
-
-		if success then
-			print("Webhook successfully sent.")
-		else
-			print("Error in sending webhook.")
+			})
+			if success then
+				print("Webhook successfully sent.")
+			else
+				print("Error in sending webhook.")
+			end
 		end
 	end
-end
-
+	workspace.zones.fishing.ChildAdded:Connect(function(child)
+		if table.find(EventsZoneWeb, child.Name) then
+			local currentTime = os.date("!*t")
+			local timestamp = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", currentTime.year, currentTime.month, currentTime.day, currentTime.hour, currentTime.min, currentTime.sec)
+			local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
+				["content"] = "",
+				["embeds"] = {
+					{
+						["id"] = 661605297,
+						["title"] = "Events",
+						["description"] = child.Name .. "\n```" .. game.JobId .. "```",
+						["color"] = 16777215,
+						["fields"] = {},
+						["thumbnail"] = {
+							["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+						},
+						["footer"] = {
+							["text"] = "Fetching Notify\n" .. timestamp,
+							["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+						}
+					}
+				}
+			})
+			if success then
+				print("Webhook successfully sent for new child.")
+			else
+				print("Error in sending webhook for new child.")
+			end
+		end
+	end)
+end)
