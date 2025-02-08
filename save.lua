@@ -591,17 +591,31 @@ General_2_2:CreateButton({Title = "บันทึกตำแหน่งปั
 		if _G.Config.Positions[_G.Config.Name] then
 			Notify("Name", "Don't use Same Name..", 3)
 		else
-			_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
+			local humCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+			_G.Config.Positions[_G.Config.Name] = {
+				X = humCFrame.X, 
+				Y = humCFrame.Y, 
+				Z = humCFrame.Z,
+				R00 = humCFrame.R00, R01 = humCFrame.R01, R02 = humCFrame.R02,
+				R10 = humCFrame.R10, R11 = humCFrame.R11, R12 = humCFrame.R12,
+				R20 = humCFrame.R20, R21 = humCFrame.R21, R22 = humCFrame.R22
+			}
 			table.insert(_G.Config.Save, _G.Config.Name)
 			positionDropdown:AddList(_G.Config.Name)
 			SaveSettings()
 		end
 	end)
 end})
+
 General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก", Mode = 1, Callback = function()
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(selectedPosition)
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
+			selectedPosition.X, selectedPosition.Y, selectedPosition.Z,
+			selectedPosition.R00, selectedPosition.R01, selectedPosition.R02,
+			selectedPosition.R10, selectedPosition.R11, selectedPosition.R12,
+			selectedPosition.R20, selectedPosition.R21, selectedPosition.R22
+		)
 	else
 		Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง.", 3)
 	end
