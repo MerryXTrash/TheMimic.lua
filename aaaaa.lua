@@ -1,3 +1,4 @@
+if game:GetService("CoreGui"):FindFirstChild("Synack")then game:GetService("CoreGui").Synack:Destroy()end
 _id=game.PlaceId
 Player=game:GetService("Players")
 LocalPlayer=Player.LocalPlayer
@@ -6,7 +7,6 @@ PlayerGui=LocalPlayer.PlayerGui
 rep = game:GetService("ReplicatedStorage")
 GuiService = game:GetService("GuiService")
 RunService = game:GetService("RunService")
-if game.CoreGui:FindFirstChild("Synack")then game.CoreGui.Synack:Destroy()end
 VirtualInputManager=game:GetService("VirtualInputManager")
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
 queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
@@ -905,7 +905,24 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					task.wait(1)
+					if not _G.QuickCast then
+						task.wait(1)
+					end
+					if _G.QuickCast then
+						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
+							local Bobble = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
+							if Bobble then
+								local Rope = Bobble:FindFirstChild("RopeConstraint")
+								if Rope then
+									pcall(function()
+										Bobble.CanCollide = false
+										Rope.Length = 9e9
+										Bobble.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -99, 10)
+									end)
+								end
+							end
+						end
+					end
 				end
 			end
 		else
@@ -1047,6 +1064,9 @@ task.spawn(function()
 		end
 	end
 end)
+General_2:CreateToggle({Title = "QC",Value = _G.QuickCast,Callback = function(value)
+	_G.QuickCast=value
+end})
 General_2:CreateToggle({Title = "การแจ้งเตือน",Value = true,Callback = function(value)
 	pcall(function()
 		game:GetService("Players").LocalPlayer.PlayerGui.hud.safezone.announcements.Visible = value
