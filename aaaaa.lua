@@ -905,9 +905,6 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					if not _G.QuickCast then
-						task.wait(1)
-					end
 					if _G.QuickCast then
 						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
 							local Bobble = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
@@ -922,6 +919,8 @@ task.spawn(function()
 								end
 							end
 						end
+					else
+						task.wait(0.5)
 					end
 				end
 			end
