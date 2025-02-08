@@ -910,16 +910,18 @@ General_1:CreateToggle({Title = "ใช้โทเท็มพระอาท�
 	SaveSettings()
 end})
 task.spawn(function()
-	while task.wait() do
+	while task.wait(5) do
 		if _G.Config.Skipday then
 			for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-				if not table.find(_G.Config.SelectZoneEvents, v.Name) then  
-					if Backpack:FindFirstChild("Sundial Totem") then
-						Backpack:WaitForChild("Sundial Totem").Parent = LocalPlayer.Character
-						Click()
-						Click()
-					else
-						Notify("Sundial Totem", "Not Found in Inventory")
+				if table.find(_G.Config.SelectZoneEvents, v.Name) then
+					local Istrue = true
+				else
+					if not LocalPlayer.Character:FindFirstChild("Sundial Totem") then
+						if Backpack:FindFirstChild("Sundial Totem") then
+							Backpack:WaitForChild("Sundial Totem").Parent = LocalPlayer.Character
+							Click()
+							Click()
+						end
 					end
 				end
 			end
@@ -931,7 +933,9 @@ task.spawn(function()
 		if _G.Config.Hopserver then
 			pcall(function()
 				for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-					if not table.find(_G.Config.SelectZoneEvents, v.Name) then  
+					if table.find(_G.Config.SelectZoneEvents, v.Name) then
+						local Istrue = true
+					else
 						HopServer(true)
 					end
 				end
@@ -1254,7 +1258,7 @@ end
 _Item = _Window:CreateTab({Title = "ไอเท็ม",Desc = "อัตโนมัติ",Icon = 89149352371179})
 Item_1 = _Item:CreateSection({Title = "ร้านค้า",Side = "Left"})
 Item_2 = _Item:CreateSection({Title = "อัตโนมัติ",Side = "Right"})
-Item_3 = _Item:CreateSection({Title = "โทเท็ม",Side = "Right"})
+Item_3 = _Item:CreateSection({Title = "ไอเท็ม",Side = "Right"})
 Item_4 = _Item:CreateSection({Title = "เทรด",Side = "Left"})
 Item_1:CreateImage({
 	Title = "ซื้อโชค VI - 5,000 C$",
@@ -1565,11 +1569,47 @@ TP_1 = _TP:CreateSection({Title = "โซน",Side = "Left"})
 TP_2 = _TP:CreateSection({Title = "ผู้คน",Side = "Right"})
 TP_3 = _TP:CreateSection({Title = "โลเคชั่น",Side = "Right"})
 TP_4 = _TP:CreateSection({Title = "โซนที่ดีที่สุด",Side = "Left"})
+TP_5 = _TP:CreateSection({Title = "เรือ",Side = "Left"})
+Scboat="nil"
+Boat={}
 Zone = "nil"
 ZoneList = {}
 npc = "nil"
 NPCList={}
 locaList = {}
+for _, v in pairs(workspace.active.boats:GetChidren()) do
+	table.insert(Boat, v.Name)
+end
+boatDD =TP_1:CreateDropdown({
+	Title = "เลือกเรือ [ อัพเดตอัตโนมัติ ]",
+	List = Boat,
+	Value = Scboat,
+	Multi = false,
+	Callback = function(value)
+		Scboat = value
+	end
+})
+TP_5:CreateButton({Title = "วาปไปยังเรือ",Mode = 1,Callback = function()
+	if Scboat == "nil" then
+		Notify("Error", "Please Select Zone")
+	else
+		local thePlace = workspace.active.boats:FindFirstChild(Zone, true)
+		if thePlace then
+			local h = thePlace:FindFirstChild("Hitbox", true)
+			if h then
+				tp(CFrame.new(findheadpos(h)))
+			end
+		end
+	end
+end})
+TP_5:CreateButton({Title = "รีเฟรช",Mode = 1,Callback = function()
+	Boat = {}
+	boatDD:Clear()
+	for _, v in pairs(workspace.world.spawns.TpSpots:GetChildren()) do  
+		table.insert(boatDD, v.Name)
+		boatDD:AddList(v.Name)
+	end
+end})
 locaSelect="nil"
 pcall(function()
 	workspace.world.spawns.TpSpots.Uncharted:Destroy()
@@ -1865,3 +1905,4 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		end
 	end
 })
+print("All is Success: " ..LocalPlayer.Name)
