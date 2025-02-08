@@ -683,7 +683,7 @@ loop(function()
 		cSunken:Set('<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. TRUE)
 	else
 		cSunken:SetVisible(false)
-		aSunken:SetVisible(true)
+		aSunken:SetVisible(false)
 		cSunken:Set('<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE)
 	end
 end)
