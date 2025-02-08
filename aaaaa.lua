@@ -58,6 +58,7 @@ _G.Config = {
 	AutoFish = false,
 	ModeFishing = "Instant",
 	Percentz = 100,
+	Skipday = false,
 	AutoSell = false,
 	DelaySell = 60,
 	SelectZoneEvents = {"Orcas Pool", "The Kraken Pool"},
@@ -591,6 +592,7 @@ Orca=General_3:CreateLabel({Title = '<font color="rgb(66, 173, 255)">วาฬ�
 Gwshark = General_3:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ฉลามขาวขนาดใหญ่ : </font>' .. FALSE,Side = "Left"})
 meteo=General_3:CreateLabel({Title = '<font color="rgb(255, 85, 0)">อุกกาบาต : </font>' .. FALSE,Side = "Left"})
 tvmerchant=General_3:CreateLabel({Title = '<font color="rgb(81, 255, 0)">พ่อค้านักเดินทาง : </font>' .. FALSE,Side = "Left"})
+cSunken=General_3:CreateLabel({Title = '<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE,Side = "Left"})
 -------------------------------------------------------------------------------------------------------------------------------
 General_4 = _General:CreateSection({Title = "อีเว้นท์โลกตอนนี้",Side = "Left"})
 General_5 = _General:CreateSection({Title = "ร้านค้าของพ่อค้า",Side = "Right"})
@@ -626,6 +628,21 @@ a6=General_4:CreateButton({Title = "วาปไปหาพ่อค้าน�
 		Notify("Error", "Could not find the NPC.")
 	end
 end})
+aSunken=General_4:CreateButton({Title = "วาปไปหากล่อง Sunken",Mode = 1,Callback = function()
+	local thePlace = workspace.ActiveChestsFolder:FindFirstChild("Pad", true)
+	if thePlace then
+		local chest = thePlace:FindFirstChild("Chests", true)
+		if chest then
+			for _, v in pairs(chest:GetChildren()) do
+				if v:IsA("Model") then
+					if v.PrimaryPart then
+						tp(v:GetPivot())
+					end
+				end
+			end
+		end
+	end
+end})
 m_11 = General_5:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ไอเท็ม 1 : nil</font>', Side = "Left"})
 m_22 = General_5:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ไอเท็ม 2 : nil</font>', Side = "Left"})
 m_33 = General_5:CreateLabel({Title = '<font color="rgb(255, 0, 195)">ไอเท็ม 3 : nil</font>', Side = "Left"})
@@ -648,6 +665,18 @@ loop(function()
 		m_33:Set("ไอเท็ม 3 : " .. (itemsmm[3] or "nil"))
 	else
 		onecheck=false
+	end
+end)
+loop(function()
+	local tempo =workspace.ActiveChestsFolder:FindFirstChild("Pad", true)
+	if tempo then
+		aSunken:SetVisible(true)
+		cSunken:SetVisible(true)
+		cSunken:Set('<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. TRUE)
+	else
+		cSunken:SetVisible(false)
+		aSunken:SetVisible(true)
+		cSunken:Set('<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE)
 	end
 end)
 a7=General_4:CreateButton({Title = "วาปไปหาอุกกาบาต",Mode = 1,Callback = function()
@@ -876,6 +905,27 @@ General_1:CreateToggle({Title = "เปลี่ยนเซิฟหาปล�
 	_G.Config.Hopserver=value
 	SaveSettings()
 end})
+General_1:CreateToggle({Title = "ใช้โทเท็มพระอาทิตย์หาปลาอีเว้นท์",Value =_G.Config.Skipday,Callback = function(value)
+	_G.Config.Skipday=value
+	SaveSettings()
+end})
+task.spawn(function()
+	while task.wait() do
+		if _G.Config.Skipday then
+			for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+				if not table.find(_G.Config.SelectZoneEvents, v.Name) then  
+					if Backpack:FindFirstChild("Sundial Totem") then
+						Backpack:WaitForChild("Sundial Totem").Parent = LocalPlayer.Character
+						Click()
+						Click()
+					else
+						Notify("Sundial Totem", "Not Found in Inventory")
+					end
+				end
+			end
+		end
+	end
+end)
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.Hopserver then
@@ -905,23 +955,7 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					if _G.QuickCast then
-						if LocalPlayer.Character:FindFirstChild(RodName) and LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber") then
-							local Bobble = LocalPlayer.Character:FindFirstChild(RodName):FindFirstChild("bobber")
-							if Bobble then
-								local Rope = Bobble:FindFirstChild("RopeConstraint")
-								if Rope then
-									pcall(function()
-										Bobble.CanCollide = false
-										Rope.Length = 9e9
-										Bobble.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -99, 10)
-									end)
-								end
-							end
-						end
-					else
-						task.wait(0.5)
-					end
+					task.wait(1)
 				end
 			end
 		else
@@ -1063,9 +1097,6 @@ task.spawn(function()
 		end
 	end
 end)
-General_2:CreateToggle({Title = "QC",Value = _G.QuickCast,Callback = function(value)
-	_G.QuickCast=value
-end})
 General_2:CreateToggle({Title = "การแจ้งเตือน",Value = true,Callback = function(value)
 	pcall(function()
 		game:GetService("Players").LocalPlayer.PlayerGui.hud.safezone.announcements.Visible = value
@@ -1394,6 +1425,36 @@ end})
 Item_3:CreateToggle({Title = "ออโต้ใช้กล่องเหยื่อ [ ถือก่อนเปิด ]",Value = _G.BaitCrate,Callback = function(value)
 	_G.BaitCrate = value
 end})
+Item_3:CreateToggle({Title = "ออโต้หากล่องสมบัติ",Value = _G.ChestSSS,Callback = function(value)
+	_G.ChestSSS = value
+end})
+task.spawn(function()
+	while task.wait() do
+		if _G.ChestSSS then
+			for _, v in pairs(workspace.world.chests:GetChildren()) do
+				if v:IsA("Part") then
+					if v:FindFirstChild("ChestClosed") then
+						tp(v.CFrame)
+						findfire(v)
+					end
+				else
+					tp(CFrame.new(-2825, 215, 1518))
+					task.wait()
+					if Backpack:FindFirstChild("Treasure Map") then
+						if not LocalPlayer.Character:FindFirstChild("Treasure Map") then
+							Backpack:FindFirstChild("Treasure Map").Parent = LocalPlayer.Character
+							pcall(function()
+								workspace.world.npcs:FindFirstChild("Jack Marrow").treasure.repairmap:InvokeServer()
+							end)
+						end
+					else
+						Notify("Treasure Map", "Not Found in Backpack", 5)
+					end
+				end
+			end
+		end
+	end
+end)
 task.spawn(function()
 	while task.wait(.1) do
 		if _G.BaitCrate then
@@ -1801,4 +1862,3 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		end
 	end
 })
-print("Check Success")
