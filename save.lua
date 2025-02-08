@@ -133,18 +133,20 @@ end
 
 function SaveSettings()
 	if readfile and writefile and isfile and isfolder then
-		if not isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
+		local configFile = "Fetching'Script/Config" .. LocalPlayer.Name .. ".json"
+		if not isfile(configFile) then
 			LoadSettings()
 		else
-			local Decode = game:GetService("HttpService"):JSONDecode(readfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json"))
-			local Array = {}
+			local Decode = game:GetService("HttpService"):JSONDecode(readfile(configFile))
+			local tablex = {}
 			for i,v in pairs(_G.Config) do
-				Array[i] = v
+				tablex[i] = v
 			end
-			writefile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json", game:GetService("HttpService"):JSONEncode(Array))
+			tablex["Save"] = _G.Config.Save
+			writefile(configFile, game:GetService("HttpService"):JSONEncode(tablex))
 		end
 	else
-		return warn("Executor is Not Support")
+		return warn("Executor is Not Supported")
 	end
 end
 LoadSettings()
@@ -575,11 +577,11 @@ task.spawn(function()
 		end
 	end
 end)
-positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้",List = _G.Config.Save,Value = _G.Config.SelectPosition,Multi = false,Callback = function(value)
+positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้", List = _G.Config.Save, Value = _G.Config.SelectPosition, Multi = false, Callback = function(value)
 	_G.Config.SelectPosition = value
 	SaveSettings()
 end})
-General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่ง",Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก",ClearTextOnFocus = true,Value = _G.Config.Name,Callback = function(value)
+General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่ง", Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก", ClearTextOnFocus = true, Value = _G.Config.Name, Callback = function(value)
 	_G.Config.Name = value
 	SaveSettings()
 end})
@@ -589,24 +591,31 @@ General_2_2:CreateButton({Title = "บันทึกตำแหน่งปั
 			Notify("Name", "Don't use Same Name..", 3)
 		else
 			_G.Config.Positions[_G.Config.Name] = LocalPlayer.Character.HumanoidRootPart.CFrame
+			table.insert(_G.Config.Save, _G.Config.Name)
 			positionDropdown:AddList(_G.Config.Name)
 			SaveSettings()
 		end
 	end)
 end})
-
-General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก",Mode = 1,Callback = function()
+General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก", Mode = 1, Callback = function()
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
 		LocalPlayer.Character.HumanoidRootPart.CFrame = selectedPosition
 	end
 end})
-General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก",Mode = 1,Callback = function()
+General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
 	_G.Config.Positions[_G.Config.SelectPosition] = nil
+	for i, name in ipairs(_G.Config.Save) do
+		if name == _G.Config.SelectPosition then
+			table.remove(_G.Config.Save, i)
+			break
+		end
+	end
 	positionDropdown:Clear()
 	for name, _ in pairs(_G.Config.Positions) do
 		positionDropdown:AddList(name)
 	end
+	SaveSettings()
 end})
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
