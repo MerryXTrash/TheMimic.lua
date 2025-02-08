@@ -1577,7 +1577,7 @@ ZoneList = {}
 npc = "nil"
 NPCList={}
 locaList = {}
-for _, v in pairs(workspace.active.boats:GetChidren()) do
+for _, v in pairs(workspace.active.boats:GetChildren()) do
 	table.insert(Boat, v.Name)
 end
 boatDD =TP_1:CreateDropdown({
@@ -1676,7 +1676,7 @@ TP_3:CreateButton({Title = "รีเฟรช",Mode = 1,Callback = function()
 	end
 end})
 bestzone = "The Depth - Bridge"
-bestzonelist = {"The Depth - Bridge", "Forsaken - Rock", "Atlantean - Storm", "Ancient Isle - Waterfall"}
+bestzonelist = {"The Depth - Bridge", "Forsaken - Rock", "Atlantean - Storm", "Ancient Isle - Waterfall", "Kraken Pool"}
 TP_4:CreateDropdown({Title = "โซนที่ดีที่สุด",List = bestzonelist,Value = bestzone ,Multi = false,Callback = function(value)
 	bestzone = value
 end})
