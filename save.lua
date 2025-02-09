@@ -118,16 +118,28 @@ function LoadSettings()
 		if not isfolder("Fetching'Script/Config") then
 			makefolder("Fetching'Script/Config")
 		end
-		if not isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
-			writefile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json", game:GetService("HttpService"):JSONEncode(_G.Config))
+		local configFile = "Fetching'Script/Config" .. LocalPlayer.Name .. ".json"
+		if not isfile(configFile) then
+			writefile(configFile, game:GetService("HttpService"):JSONEncode(_G.Config))
 		else
-			local Decode = game:GetService("HttpService"):JSONDecode(readfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json"))
-			for i,v in pairs(Decode) do
+			local Decode = game:GetService("HttpService"):JSONDecode(readfile(configFile))
+			for i, v in pairs(Decode) do
 				_G.Config[i] = v
 			end
+
+			-- แปลง Table -> CFrame ใหม่
+			local positions = {}
+			for name, pos in pairs(_G.Config.Positions or {}) do
+				if type(pos) == "table" and pos.X and pos.Y and pos.Z then
+					positions[name] = CFrame.new(pos.X, pos.Y, pos.Z)
+				else
+					positions[name] = pos
+				end
+			end
+			_G.Config.Positions = positions
 		end
 	else
-		return warn("Executor is Not Support")
+		return warn("Executor is Not Supported")
 	end
 end
 function SaveSettings()
@@ -136,19 +148,26 @@ function SaveSettings()
 		if not isfile(configFile) then
 			LoadSettings()
 		else
-			local Decode = game:GetService("HttpService"):JSONDecode(readfile(configFile))
 			local tablex = {}
-			for i,v in pairs(_G.Config) do
+			for i, v in pairs(_G.Config) do
 				tablex[i] = v
 			end
-			tablex["Save"] = _G.Config.Save
-			tablex["Positions"] = _G.Config.Positions
+			local positions = {}
+			for name, cf in pairs(_G.Config.Positions or {}) do
+				if typeof(cf) == "CFrame" then
+					positions[name] = {X = cf.Position.X, Y = cf.Position.Y, Z = cf.Position.Z}
+				else
+					positions[name] = cf
+				end
+			end
+			tablex["Positions"] = positions
 			writefile(configFile, game:GetService("HttpService"):JSONEncode(tablex))
 		end
 	else
 		return warn("Executor is Not Supported")
 	end
 end
+
 LoadSettings()
 print("Isloaded")
 TRUE=EmojiModule:GetEmoji("Green")
@@ -577,57 +596,81 @@ task.spawn(function()
 		end
 	end
 end)
-positionDropdown = General_2_2:CreateDropdown({Title = "เลือกตำแหน่งที่บันทึกไว้", List = _G.Config.Save, Value = _G.Config.SelectPosition, Multi = false, Callback = function(value)
-	_G.Config.SelectPosition = value
-	SaveSettings()
-end})
-
-General_2_2:CreateTextbox({Title = "ตั้งชื่อตำแหน่ง", Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก", ClearTextOnFocus = true, Value = _G.Config.Name, Callback = function(value)
-	_G.Config.Name = value
-	SaveSettings()
-end})
-General_2_2:CreateButton({Title = "บันทึกตำแหน่งปัจจุบัน", Mode = 1, Callback = function()
-	pcall(function()
-		if _G.Config.Positions[_G.Config.Name] then
-			Notify("Name", "Don't use Same Name..", 3)
-		else
-			local humCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
-			_G.Config.Positions[_G.Config.Name] = {
-				X = humCFrame.X, 
-				Y = humCFrame.Y, 
-				Z = humCFrame.Z,
-				R00 = humCFrame.R00, R01 = humCFrame.R01, R02 = humCFrame.R02,
-				R10 = humCFrame.R10, R11 = humCFrame.R11, R12 = humCFrame.R12,
-				R20 = humCFrame.R20, R21 = humCFrame.R21, R22 = humCFrame.R22
-			}
-			table.insert(_G.Config.Save, _G.Config.Name)
-			positionDropdown:AddList(_G.Config.Name)
-			SaveSettings()
-		end
-	end)
-end})
-
-General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก", Mode = 1, Callback = function()
-	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
-	if selectedPosition then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
-			selectedPosition.X, selectedPosition.Y, selectedPosition.Z,
-			selectedPosition.R00, selectedPosition.R01, selectedPosition.R02,
-			selectedPosition.R10, selectedPosition.R11, selectedPosition.R12,
-			selectedPosition.R20, selectedPosition.R21, selectedPosition.R22
-		)
-	else
-		Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง.", 3)
-	end
-end})
-General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
-	_G.Config.Positions[_G.Config.SelectPosition] = nil
-	positionDropdown:Clear()
-	for name, _ in pairs(_G.Config.Positions) do
-		positionDropdown:AddList(name)
+positionDropdown=General_2_2:CreateDropdown({
+	Title = "เลือกตำแหน่งที่บันทึกไว้",
+	List = _G.Config.Positions and table.keys(_G.Config.Positions) or {},
+	Value = _G.Config.SelectPosition,
+	Multi = false,
+	Callback = function(value)
+		_G.Config.SelectPosition = value
 		SaveSettings()
 	end
-end})
+})
+
+General_2_2:CreateTextbox({
+	Title = "ตั้งชื่อตำแหน่ง",
+	Desc = "ใส่ชื่อตำแหน่งที่ต้องการบันทึก",
+	ClearTextOnFocus = true,
+	Value = "",
+	Callback = function(value)
+		_G.Config.Name = value
+	end
+})
+
+General_2_2:CreateButton({
+	Title = "บันทึกตำแหน่งปัจจุบัน",
+	Mode = 1,
+	Callback = function()
+		if _G.Config.Name and _G.Config.Name ~= "" then
+			local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			if hum then
+				if not _G.Config.Positions then _G.Config.Positions = {} end
+				_G.Config.Positions[_G.Config.Name] = {X = hum.Position.X, Y = hum.Position.Y, Z = hum.Position.Z}
+				SaveSettings()
+				Notify("Success", "ตำแหน่งถูกบันทึกแล้ว", 3)
+			else
+				Notify("Error", "ไม่พบตัวละครของคุณ", 3)
+			end
+		else
+			Notify("Error", "กรุณาใส่ชื่อสถานที่", 3)
+		end
+	end
+})
+
+General_2_2:CreateButton({
+	Title = "วาร์ปไปตำแหน่งที่เลือก",
+	Mode = 1,
+	Callback = function()
+		local selectedPosition = _G.Config.Positions and _G.Config.Positions[_G.Config.SelectPosition]
+		if selectedPosition then
+			LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z)
+			Notify("Success", "วาร์ปสำเร็จ", 3)
+		else
+			Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง", 3)
+		end
+	end
+})
+General_2_2:CreateButton({
+	Title = "ลบตำแหน่งที่เลือก",
+	Mode = 1,
+	Callback = function()
+		if _G.Config.Positions and _G.Config.SelectPosition and _G.Config.Positions[_G.Config.SelectPosition] then
+			_G.Config.Positions[_G.Config.SelectPosition] = nil
+			_G.Config.SelectPosition = nil
+			SaveSettings()
+			Notify("Success", "ลบตำแหน่งสำเร็จ", 3)
+			local newList = {}
+			for name, _ in pairs(_G.Config.Positions) do
+				table.insert(newList, name)
+			end
+			positionDropdown:Clear()
+			positionDropdown:AddList(newList)
+		else
+			Notify("Error", "ไม่มีตำแหน่งให้ลบ", 3)
+		end
+	end
+})
+
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
 -------------------------------------------------------------------------------------------------------------------------------
@@ -666,6 +709,7 @@ tvmerchant=General_3:CreateLabel({Title = '<font color="rgb(81, 255, 0)">พ่�
 cSunken=General_3:CreateLabel({Title = '<font color="rgb(255, 88, 88)">หีบสมบัติ Sunken : </font>' .. FALSE,Side = "Left"})
 lovestorm=General_3:CreateLabel({Title = '<font color="rgb(229, 125, 255)">New! ปลาไหลแห่งความรักจุ๊บๆ : </font>' .. FALSE,Side = "Left"})
 -------------------------------------------------------------------------------------------------------------------------------
+fzone = workspace.zones.fishing
 General_4 = _General:CreateSection({Title = "อีเว้นท์โลกตอนนี้",Side = "Left"})
 General_5 = _General:CreateSection({Title = "ร้านค้าของพ่อค้า",Side = "Right"})
 noone= General_4:CreateLabel({Title = '<font color="rgb(255, 255, 0)">ถ้าอีเว้นท์เกิดจะทุกอย่างอยู่หน้านี้</font>',Side = "Center"})
@@ -737,7 +781,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local love = workspace:FindFirstChild("Lovestorm Eel", true)
+	local love = fzone:FindFirstChild("Lovestorm Eel", true)
 	if love then 
 		lovestorm:SetVisible(true)
 		lovestorm:Set('<font color="rgb(229, 125, 255)">New! ปลาไหลแห่งความรักจุ๊บๆ : </font>' .. TRUE)
@@ -761,7 +805,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local love = workspace:FindFirstChild("Isonade", true)
+	local love = fzone:FindFirstChild("Isonade", true)
 	if love then
 		Ison:SetVisible(true)
 		Ison:Set('<font color="rgb(255, 0, 195)">ไอโซเนด : </font>' .. TRUE)
@@ -785,7 +829,7 @@ end})
 task.spawn(function()
 	while task.wait() do
 		if _G.Isoned then
-			local gws = workspace:FindFirstChild("Isonade", true)
+			local gws = fzone:FindFirstChild("Isonade", true)
 			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 15, 0))end
 		end
 	end
@@ -793,7 +837,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.loveEel then
-			local gws = workspace:FindFirstChild("Lovestorm Eel", true)
+			local gws = fzone:FindFirstChild("Lovestorm Eel", true)
 			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
 		end
 	end
@@ -801,7 +845,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.gwshark then
-			local gws = workspace:FindFirstChild("Great White Shark", true)
+			local gws = fzone:FindFirstChild("Great White Shark", true)
 			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
 		end
 	end
@@ -809,7 +853,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.orca then
-			local op = workspace:FindFirstChild("Orcas Pool", true)
+			local op = fzone:FindFirstChild("Orcas Pool", true)
 			if op then tp(CFrame.new(findheadpos(op))*CFrame.new(0, 5, 40))
 				local character = LocalPlayer.Character
 				local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -821,7 +865,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.whaleshark then
-			local wsa = workspace:FindFirstChild("Whale Shark", true)
+			local wsa = fzone:FindFirstChild("Whale Shark", true)
 			if wsa then tp(CFrame.new(findheadpos(wsa))*CFrame.new(15, 10, 0))end
 		end
 	end
@@ -829,7 +873,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.megalo then
-			local mgd = workspace:FindFirstChild("Megalodon Default", true)
+			local mgd = fzone:FindFirstChild("Megalodon Default", true)
 			if mgd then tp(CFrame.new(findheadpos(mgd))*CFrame.new(15, 5, 0))end
 		end
 	end
@@ -837,7 +881,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.kraken then
-			local kaken = workspace:FindFirstChild("The Kraken Pool", true)
+			local kaken = fzone:FindFirstChild("The Kraken Pool", true)
 			if kaken then tp(CFrame.new(findheadpos(kaken)) * CFrame.new(15, 5, 0))end
 		end
 	end
@@ -845,7 +889,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.hammerh then
-			local ge = workspace:FindFirstChild("Great Hammerhead Shark", true)
+			local ge = fzone:FindFirstChild("Great Hammerhead Shark", true)
 			if ge then tp(CFrame.new(findheadpos(ge))*CFrame.new(15, 5, 0))end
 		end
 	end
@@ -853,14 +897,14 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.Goldpole then
-			local go = workspace:FindFirstChild("Golden Tide", true)
+			local go = fzone:FindFirstChild("Golden Tide", true)
 			if go then tp(go.CFrame*CFrame.new(0, _G.YFishing, 0), 9e9)end
 		end
 	end
 end)
 -------------------------------------------------------------------------------------------------------------------------------
 loop(function()
-	local ge = workspace:FindFirstChild("Great White Shark", true)
+	local ge = fzone:FindFirstChild("Great White Shark", true)
 	if ge then
 		Gwshark:Set('<font color="rgb(255, 0, 195)">ฉลามขาวขนาดใหญ่ : </font>' .. TRUE)
 		Gwshark:SetVisible(true)
@@ -872,7 +916,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local ge = workspace:FindFirstChild("Orcas Pool", true)
+	local ge = fzone:FindFirstChild("Orcas Pool", true)
 	if ge then
 		Orca:Set('<font color="rgb(66, 173, 255)">วาฬเพชฌฆาต : </font>' .. TRUE)
 		a8:SetVisible(true)
@@ -884,7 +928,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local thePlace = workspace.MeteorItems:FindFirstChildOfClass("Model")
+	local thePlace = fzone.MeteorItems:FindFirstChildOfClass("Model")
 	if thePlace then
 		meteo:Set('<font color="rgb(255, 85, 0)">อุกกาบาต : </font>' .. TRUE)
 		a7:SetVisible(true)
@@ -914,7 +958,7 @@ loop(function()
 	season:Set('<font color="rgb(126, 139, 255)">ฤดูกาล : </font>' .. PlayerGui.hud.safezone.worldstatuses["4_season"].label.Text)
 end)
 loop(function()
-	local mega55 = workspace:FindFirstChild("Megalodon Default", true)
+	local mega55 = fzone:FindFirstChild("Megalodon Default", true)
 	if mega55 then
 		Megalodon:Set('<font color="rgb(255, 0 ,0)">เมกาโลดอน : </font>' .. TRUE)
 		Megalodon:SetVisible(true)
@@ -926,7 +970,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local kkub = workspace:FindFirstChild("The Kraken Pool", true)
+	local kkub = fzone:FindFirstChild("The Kraken Pool", true)
 	if kkub then
 		krakenz:Set('<font color="rgb(85, 85, 255)">ปลาหมึกยักษ์ปลาหมึกปีศาจ : </font>' .. TRUE)
 		krakenz:SetVisible(true)
@@ -938,7 +982,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local go = workspace:FindFirstChild("Golden Tide Pole", true)
+	local go = fzone:FindFirstChild("Golden Tide Pole", true)
 	if go then
 		Goldpole:Set('<font color="rgb(255, 255, 0)">บ่อทอง : </font>' .. TRUE)
 		Goldpole:SetVisible(true)
@@ -950,7 +994,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local ge = workspace:FindFirstChild("Great Hammerhead Shark", true)
+	local ge = fzone:FindFirstChild("Great Hammerhead Shark", true)
 	if ge then
 		GreatHammerS:Set('<font color="rgb(255, 0, 195)">ฉลามหัวค้อนขนาดใหญ่ : </font>' .. TRUE)
 		a4:SetVisible(true)
@@ -962,7 +1006,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local qs = workspace:FindFirstChild("Whale Shark", true)
+	local qs = fzone:FindFirstChild("Whale Shark", true)
 	if qs then
 		WhaleShark:Set('<font color="rgb(255, 0, 195)">ฉลามวาฬ : </font>' .. TRUE)
 		a5:SetVisible(true)
@@ -2022,6 +2066,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		end
 	end
 })
+_G.First = false
 task.spawn(function()
 	print("All is Success: " .. LocalPlayer.Name)
 	local EventsZoneWeb = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
@@ -2056,7 +2101,8 @@ task.spawn(function()
 		end
 	end
 	local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
-	if fishingZones then
+	if fishingZones and not _G.First then
+		_G.First = true
 		for _, v in pairs(fishingZones:GetChildren()) do
 			if table.find(EventsZoneWeb, v.Name) then
 				sendEventNotification(v.Name)
