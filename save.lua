@@ -596,9 +596,15 @@ task.spawn(function()
 		end
 	end
 end)
+local positionList = {}
+if _G.Config.Positions then
+	for name, _ in pairs(_G.Config.Positions) do
+		table.insert(positionList, name)
+	end
+end
 positionDropdown=General_2_2:CreateDropdown({
 	Title = "เลือกตำแหน่งที่บันทึกไว้",
-	List = _G.Config.Positions and table.keys(_G.Config.Positions) or {},
+	List = positionList,
 	Value = _G.Config.SelectPosition,
 	Multi = false,
 	Callback = function(value)
@@ -614,6 +620,7 @@ General_2_2:CreateTextbox({
 	Value = "",
 	Callback = function(value)
 		_G.Config.Name = value
+		SaveSettings()
 	end
 })
 
@@ -634,6 +641,7 @@ General_2_2:CreateButton({
 		else
 			Notify("Error", "กรุณาใส่ชื่อสถานที่", 3)
 		end
+		SaveSettings()
 	end
 })
 
