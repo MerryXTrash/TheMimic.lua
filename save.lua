@@ -635,15 +635,21 @@ General_2_2:CreateButton({
 				_G.Config.Positions[_G.Config.Name] = {X = hum.Position.X, Y = hum.Position.Y, Z = hum.Position.Z}
 				SaveSettings()
 				Notify("Success", "ตำแหน่งถูกบันทึกแล้ว", 3)
+				local newList = {}
+				for name, _ in pairs(_G.Config.Positions) do
+					table.insert(newList, name)
+				end
+				positionDropdown:Clear()
+				positionDropdown:AddList(newList)
 			else
 				Notify("Error", "ไม่พบตัวละครของคุณ", 3)
 			end
 		else
 			Notify("Error", "กรุณาใส่ชื่อสถานที่", 3)
 		end
-		SaveSettings()
 	end
 })
+
 
 General_2_2:CreateButton({
 	Title = "วาร์ปไปตำแหน่งที่เลือก",
@@ -678,6 +684,7 @@ General_2_2:CreateButton({
 		end
 	end
 })
+
 
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
@@ -936,7 +943,7 @@ loop(function()
 	end
 end)
 loop(function()
-	local thePlace = fzone.MeteorItems:FindFirstChildOfClass("Model")
+	local thePlace = workspace.MeteorItems:FindFirstChildOfClass("Model")
 	if thePlace then
 		meteo:Set('<font color="rgb(255, 85, 0)">อุกกาบาต : </font>' .. TRUE)
 		a7:SetVisible(true)
