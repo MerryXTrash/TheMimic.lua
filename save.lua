@@ -362,10 +362,31 @@ _Doc=_Window:CreateTab({Title = "การแนะนำ",Desc = "ภาพร�
 -------------------------------------------------------------------------------------------------------------------------------
 Credit=_Doc:CreateSection({Title = "เครดิต",Side = "Right"})
 Credit:CreateImage({Title = "Owner",Desc = "Ninesixt Lnwza",Icon = 100618692787198})
+Credit:CreateLabel({Title = 'เข้าร่วมดิสคอร์ดเพื่อเข้าเซิฟที่มีอีเว้นท์เกิด !', Side = "Center"})
 Credit:CreateButton({Title = "Discord",Mode = 1,Callback = function()
 	setclipboard("https://discord.gg/uy6TP4ew7d")
 end})
-Credit:CreateLabel({Title = 'เข้าร่วมดิสคอร์ดเพื่อเข้าเซิฟที่มีอีเว้นท์เกิด !', Side = "Left"})
+Dayz = Credit:CreateLabel({Title = 'เป็นวันที่ดี', Side = "Center"})
+local valen = EmojiModule:GetEmoji("Valentine")
+local xm = EmojiModule:GetEmoji("Xmas")
+local normal = EmojiModule:GetEmoji("Chill")
+local hwa = EmojiModule:GetEmoji("Halloween")
+local newy = EmojiModule:GetEmoji("Newyear")
+game:GetService("RunService").Heartbeat:Connect(function()
+	local currentDate = os.date("%m-%d")
+	if currentDate == "01-01" then
+		Dayz:Set("สุขสันต์ปีใหม่, ขอให้เป็นปีที่ดี" .. newy)
+	elseif currentDate == "02-14" then
+		Dayz:Set("สุขสันต์วันวาเลนไทน์, ขอให้มีความสุขกับคนที่รักถ้าไม่มีคนที่รักก็เรื่องของมึงไอควาย" .. valen)
+	elseif currentDate == "10-31" then
+		Dayz:Set("ทริคออทรีค, ระวังโดนผีหลอกกกกกก" .. hwa)
+	elseif currentDate == "12-25" then
+		Dayz:Set("เมอร์รี่คริสมาส, ว่าแต่อาบน้ำยัง" .. xm)
+	else
+		Dayz:Set("เป็นวันที่ดี " .. normal)
+	end
+end)
+
 -------------------------------------------------------------------------------------------------------------------------------
 Overview=_Doc:CreateSection({Title = "ภาพรวม",Side = "Left"})
 playerName =LocalPlayer.Name
@@ -1744,7 +1765,7 @@ end})
 TP_5:CreateButton({Title = "รีเฟรช",Mode = 1,Callback = function()
 	Boat = {}
 	boatDD:Clear()
-	for _, v in pairs(workspace.world.spawns.TpSpots:GetChildren()) do  
+	for _, v in pairs(workspace.active.boats:GetChildren()) do  
 		table.insert(boatDD, v.Name)
 		boatDD:AddList(v.Name)
 	end
@@ -1930,7 +1951,6 @@ end)
 -------------------------------------------------------------------------------------------------------------------------------
 BlackScreen = Instance.new("ScreenGui")
 BlackScreen.IgnoreGuiInset = true
-BlackScreen.ZIndexBehavior = Enum.ZIndexBehavior.Global
 BlackScreen.Parent = game:GetService("CoreGui")
 BlackFrame = Instance.new("Frame")
 BlackFrame.Parent = BlackScreen
@@ -2046,7 +2066,7 @@ jobid = game.JobId
 _Server:CreateTextbox({Title = "ไอดีเซิร์ฟ",Desc = "ใส่ไอดีเซิร์ฟ",ClearTextOnFocus = true,Value = jobid,Callback = function(value)
 	jobid=value
 end})
-_Server:CreateButton({Title = "วาปไปยังไอดีเซิร์ฟ",Mode = 1,Callback = function()
+_Server:CreateButton({Title = "เข้าร่วม",Mode = 1,Callback = function()
 	local PID,JID,PLR = game.PlaceId,jobid,LocalPlayer;
 	game:GetService('TeleportService'):TeleportToPlaceInstance(PID,JID,PLR)
 end})
