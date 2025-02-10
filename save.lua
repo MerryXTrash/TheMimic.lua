@@ -57,6 +57,7 @@ _G.Config = {
 	AutoExc = true,
 	AutoFish = false,
 	ModeFishing = "Instant",
+	ModePosition = "Automatic",
 	Percentz = 100,
 	Skipday = false,
 	AutoSell = false,
@@ -70,7 +71,8 @@ _G.Config = {
 	DelaySendWeb = 60,
 	SelectPosition = "",
 	Save = {},
-	Positions = {}
+	Positions = {},
+	BlackScreen = false,
 }
 local TeleportCheck = false
 LocalPlayer.OnTeleport:Connect(function(State)
@@ -543,25 +545,6 @@ _CFrame:CreateButton({
 	end
 })
 -------------------------------------------------------------------------------------------------------------------------------
-_Server = _Feature:CreateSection({Title = "เซิร์ฟเวอร์",Side = "Right"})
-jobid = game.JobId
-_Server:CreateTextbox({Title = "ไอดีเซิร์ฟ",Desc = "ใส่ไอดีเซิร์ฟ",ClearTextOnFocus = true,Value = jobid,Callback = function(value)
-	jobid=value
-end})
-_Server:CreateButton({Title = "วาปไปยังไอดีเซิร์ฟ",Mode = 1,Callback = function()
-	local PID,JID,PLR = game.PlaceId,jobid,LocalPlayer;
-	game:GetService('TeleportService'):TeleportToPlaceInstance(PID,JID,PLR)
-end})
-_Server:CreateButton({Title = "เปลี่ยนเซิร์ฟเวอร์",Mode = 1,Callback = function()
-	HopServer(true)
-end})
-_Server:CreateButton({Title = "ก็อปไอดีเกม",Mode = 1,Callback = function()
-	setclipboard(_id)
-end})
-_Server:CreateButton({Title = "ก็อปไอดีเซิฟ",Mode = 1,Callback = function()
-	setclipboard(game.JobId)
-end})
--------------------------------------------------------------------------------------------------------------------------------
 _General = _Window:CreateTab({Title = "ทั่วไป",Desc = "อัตโนมัติ",Icon = 83854127275050})
 General_1 = _General:CreateSection({Title = "การตกปลา",Side = "Left"})
 General_2_2 = _General:CreateSection({Title = "การตั่งค่าตำแหน่ง",Side = "Right"})
@@ -602,7 +585,7 @@ end})
 General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งที่เลือก", Mode = 1, Callback = function()
 	local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
 	if selectedPosition then
-		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z)
+		tp(CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z))
 	else
 		Notify("Error", "ตำแหน่งที่เลือกไม่ถูกต้อง.", 3)
 	end
@@ -983,6 +966,16 @@ General_1:CreateSelect({
 		SaveSettings()
 	end,
 })
+General_1:CreateSelect({
+	Title = "โหมดตำแหน่ง",
+	Desc = "เลือกโหมด",
+	List = {"Save Position", "Automatic"},
+	Value = _G.Config.ModePosition,
+	Callback = function(value)
+		_G.Config.ModePosition = value
+		SaveSettings()
+	end,
+})
 EventsZone = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark", "Isonade"}
 EventsDD = General_1:CreateDropdown({
 	Title = "เลือกปลาอีเว้นท์",
@@ -1122,7 +1115,21 @@ task.spawn(function()
 							if iso then tp(CFrame.new(findheadpos(iso))*CFrame.new(15, 5, 0))end
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						end
+					else
+						if _G.Config.ModePosition == "Save Position" then
+							local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
+							if selectedPosition then
+								tp(CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z))
+							end
+						end
 					end
+				end
+			end
+		else
+			if _G.Config.ModePosition == "Save Position" then
+				local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
+				if selectedPosition then
+					tp(CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z))
 				end
 			end
 		end
@@ -1675,6 +1682,53 @@ TP_2 = _TP:CreateSection({Title = "ผู้คน",Side = "Right"})
 TP_3 = _TP:CreateSection({Title = "โลเคชั่น",Side = "Right"})
 TP_4 = _TP:CreateSection({Title = "โซนที่ดีที่สุด",Side = "Left"})
 TP_5 = _TP:CreateSection({Title = "เรือ",Side = "Left"})
+TP_6 = _TP:CreateSection({Title = "โซนทั้งหมด",Side = "Right"})
+SCZone = "nil"
+ALLZoneList = {}
+ZoneNames = {}
+for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+	if v:IsA("Part") then
+		local zoneName22 = v.Name
+		if not ZoneNames[zoneName22] then
+			table.insert(ALLZoneList, v)
+			ZoneNames[zoneName22] = true
+		end
+	end
+end
+ZoneDD =TP_6:CreateDropdown({
+	Title = "เลือกโซน [ ทั้งหมด ]",
+	List = ALLZoneList,
+	Value = SCZone,
+	Multi = false,
+	Callback = function(value)
+		SCZone = value
+	end
+})
+TP_6:CreateButton({Title = "วาปไปยังสถานที่",Mode = 1,Callback = function()
+	if SCZone == "nil" then
+		Notify("Error", "Please Select Zone")
+	else
+		local thePlace = workspace.zones.fishing:FindFirstChild(SCZone, true)
+		if thePlace and thePlace:IsA("BasePart") then
+			tp(CFrame.new(findheadpos(thePlace)))
+		end
+	end
+end})
+TP_6:CreateButton({Title = "รีเฟรช",Mode = 1,Callback = function()
+	ALLZoneList = {}
+	ZoneNames = {}
+	ZoneDD:Clear()
+	for _, v in pairs(workspace.zones.fishing:GetChildren()) do
+		if v:IsA("Part") then
+			local zoneName22 = v.Name
+			if not ZoneNames[zoneName22] then
+				table.insert(ALLZoneList, v)
+				ZoneDD:AddList(v.Name)
+				ZoneNames[zoneName22] = true
+			end
+		end
+	end
+end})
 Scboat="nil"
 Boat={}
 Zone = "nil"
@@ -1835,6 +1889,7 @@ end})
 _Webhook = _Window:CreateTab({Title = "เว็บฮุกและอื่นๆ",Desc = "การส่งข้อมูลและอื่นๆ",Icon = 139021543288287})
 Webhook_1 = _Webhook:CreateSection({Title = "การตั้งค่าเว็บฮุก",Side = "Left"})
 Webhook_2=_Webhook:CreateSection({Title = "การแสกงผล",Side = "Right"})
+_Server = _Webhook:CreateSection({Title = "เซิร์ฟเวอร์",Side = "Left"})
 Webhook_1:CreateTextbox({Title = "URL เว็บฮุก",Desc = "ใส่ URL เว็บฮุกของคุณ",ClearTextOnFocus = true,Value = _G.Config.web,Callback = function(value)
 	_G.Config.web=value
 	SaveSettings()
@@ -1893,7 +1948,32 @@ task.spawn(function()
 	end
 end)
 -------------------------------------------------------------------------------------------------------------------------------
-Webhook_2:CreateButton({Title = "ทำให้กราฟฟิกสบายตา",Mode = 1,Callback = function()
+BlackScreen = Instance.new("ScreenGui")
+BlackScreen.IgnoreGuiInset = true
+BlackScreen.ZIndexBehavior = Enum.ZIndexBehavior.Global
+BlackScreen.Parent = game:GetService("CoreGui")
+BlackFrame = Instance.new("Frame")
+BlackFrame.Parent = BlackScreen
+BlackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackFrame.Size = UDim2.new(1,0,1,0)
+BlackFrame.BackgroundTransparency = 0
+BlackFrame.Visible = false
+Webhook_2:CreateToggle({Title = "จอดำ AFK [ ลดอาการแลต ]",Value = _G.Config.BlackScreen,Callback = function(value)
+	_G.Config.BlackScreen = value
+	if value and _G.Config.BlackScreen then
+		game.RunService:Set3dRenderingEnabled(true)
+		BlackFrame.Visible = true
+	else
+		BlackFrame.Visible = false
+		game.RunService:Set3dRenderingEnabled(false)
+	end
+	SaveSettings()
+end})
+Webhook_2:CreateToggle({Title = "รันสคริปต์อัตโนมัติ",Value = _G.Config.AutoExc,Callback = function(value)
+	_G.Config.AutoExc = value
+	SaveSettings()
+end})
+Webhook_2:CreateButton({Title = "ทำให้กราฟฟิกสบายตา",Desc="ทำให้กราฟฟิกสบายตาหรือการเปิดแสงสว่าง",Mode = 2,Callback = function()
 	while task.wait() do
 		for _, v in pairs(game.Lighting:GetChildren()) do
 			if v then
@@ -1903,7 +1983,39 @@ Webhook_2:CreateButton({Title = "ทำให้กราฟฟิกสบา�
 		end
 	end
 end})
-Webhook_2:CreateButton({Title = "แก้แลค",Mode = 1,Callback = function()
+Webhook_2:CreateButton({Title = "รับเลเวลฟรี",Desc="ปลดล็อกทุกสถานที่เพื่อรับ",Mode = 2,Callback = function()
+	for _, v in ipairs(workspace.world.spawns.TpSpots:GetChildren()) do
+		if v:IsA("BasePart") then
+			tp(v.CFrame)
+			task.wait(1.5)
+		end
+	end
+end})
+Codes = {
+	"NorthernExpedition",
+	"RFG",
+	"NewYear",
+	"GOLDENTIDE",
+	"ATLANTEANSTORM",
+	"SORRYGUYS",
+	"CARBON",
+	"THEKRAKEN"
+}
+Webhook_2:CreateButton({Title = "โค้ด",Desc="ใส่โค้ดทั้งหมด",Mode = 2,Callback = function()
+	for i,v in pairs(Codes) do
+		local args = {
+			[1] = v
+		}
+		game:GetService("ReplicatedStorage").events.runcode:FireServer(unpack(args))
+		task.wait(0.5)
+	end
+end})
+Webhook_2:CreateButton({Title = "ลบเอฟเฟคค์พายุใน Grand Reef",Desc ="ทำให้ลื่นขึ้นเมื่ออยู่ Grand Reef",Mode = 2,Callback = function()
+	pcall(function()
+		workspace.StormEffect:Destroy()
+	end)
+end})
+Webhook_2:CreateButton({Title = "แก้แลค",Desc= "ลดการใช้งาน CPU",Mode = 2,Callback = function()
 	local Terrain = workspace:FindFirstChildOfClass('Terrain')
 	Terrain.WaterWaveSize = 0
 	Terrain.WaterWaveSpeed = 0
@@ -1944,40 +2056,8 @@ Webhook_2:CreateButton({Title = "แก้แลค",Mode = 1,Callback = functio
 			end
 		end)
 	end)
-end})
-Webhook_2:CreateButton({Title = "ลบเอฟเฟคค์พายุใน Grand Reef",Mode = 1,Callback = function()
-	pcall(function()
-		workspace.StormEffect:Destroy()
-	end)
-end})
-Webhook_2:CreateButton({Title = "รับเลเวลฟรี",Desc="ปลดล็อกทุกสถานที่เพื่อรับ",Mode = 2,Callback = function()
-	for _, v in ipairs(workspace.world.spawns.TpSpots:GetChildren()) do
-		if v:IsA("BasePart") then
-			tp(v.CFrame)
-			task.wait(1.5)
-		end
-	end
-end})
-Codes = {
-	"NorthernExpedition",
-	"RFG",
-	"NewYear",
-	"GOLDENTIDE",
-	"ATLANTEANSTORM",
-	"SORRYGUYS",
-	"CARBON",
-	"THEKRAKEN"
-}
-Webhook_2:CreateButton({Title = "โค้ด",Desc="ใส่โค้ดทั้งหมด",Mode = 2,Callback = function()
-	for i,v in pairs(Codes) do
-		local args = {
-			[1] = v
-		}
-		game:GetService("ReplicatedStorage").events.runcode:FireServer(unpack(args))
-		task.wait(0.5)
-	end
-end})
-Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode = 1,Callback = function()
+end}) 
+Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Desc="ลบการตั้งค่าหรือรีเซ็ตการตั้งค่า",Mode = 2,Callback = function()
 	if isfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json") then
 		delfile("Fetching'Script/Config" .. LocalPlayer.Name .. ".json")
 		Notify("Success", "Config has Delete.")
@@ -1985,9 +2065,20 @@ Webhook_2:CreateButton({Title = "ลบไฟล์ตั้งค่า",Mode =
 		Notify("Warning", "Config not found.")
 	end
 end})
-Webhook_2:CreateToggle({Title = "รันสคริปต์อัตโนมัติ",Value = _G.Config.AutoExc,Callback = function(value)
-	_G.Config.AutoExc = value
-	SaveSettings()
+-------------------------------------------------------------------------------------------------------------------------------
+jobid = game.JobId
+_Server:CreateTextbox({Title = "ไอดีเซิร์ฟ",Desc = "ใส่ไอดีเซิร์ฟ",ClearTextOnFocus = true,Value = jobid,Callback = function(value)
+	jobid=value
+end})
+_Server:CreateButton({Title = "วาปไปยังไอดีเซิร์ฟ",Mode = 1,Callback = function()
+	local PID,JID,PLR = game.PlaceId,jobid,LocalPlayer;
+	game:GetService('TeleportService'):TeleportToPlaceInstance(PID,JID,PLR)
+end})
+_Server:CreateButton({Title = "ก็อปไอดีเซิฟ",Mode = 1,Callback = function()
+	setclipboard(game.JobId)
+end})
+_Server:CreateButton({Title = "เปลี่ยนเซิร์ฟเวอร์",Mode = 1,Callback = function()
+	HopServer(true)
 end})
 -------------------------------------------------------------------------------------------------------------------------------
 game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -2010,54 +2101,182 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 		end
 	end
 })
-_G.First = false
-task.spawn(function()
-	print("All is Success: " .. LocalPlayer.Name)
-	local EventsZoneWeb = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark"}
-	function sendEventNotification(zoneName)
-		local currentTime = os.date("%H:%M:%S") -- Properly formatted timestamp
-		local playerCount = game.Players.NumPlayers
-		local maxPlayers = 15
-		local success = sendwebhook("https://discord.com/api/webhooks/1337824733479305336/xZH3PzDgXkKlf2RmuOzijxSFPfAGlCGDjFMWEWlehzie8roUyIsoyXmDt-9geWywWjoR", {
-			["content"] = "",
-			["embeds"] = {
-				{
-					["id"] = 661605297,
-					["title"] = "Events",
-					["description"] = zoneName .. "\n```" .. game.JobId .. "```" .. "\nจำนวนผู้เล่น: " .. playerCount .. "/" .. maxPlayers,
-					["color"] = 16777215,
-					["fields"] = {},
-					["thumbnail"] = {
-						["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-					},
-					["footer"] = {
-						["text"] = "Fetching Notify\n" .. currentTime,
-						["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
-					}
+_G.First = {
+	Orca = false,
+	Megalodon = false,
+	LoveEel = false,
+	Merchant = false,
+	Meteor = false,
+	GWS = false,
+	WS = false,
+	GHS = false,
+	Kraken = false,
+	Sunken = false,
+}
+print("All is Success: " .. LocalPlayer.Name)
+function sendEventNotification(zoneName, webhooks)
+	local currentTime = os.date("%H:%M:%S") -- Properly formatted timestamp
+	local playerCount = game.Players.NumPlayers
+	local maxPlayers = 15
+	local success = sendwebhook(webhooks, {
+		["content"] = "",
+		["embeds"] = {
+			{
+				["id"] = 661605297,
+				["title"] = "Events",
+				["description"] = zoneName .. "\n```" .. game.JobId .. "```" .. "\nจำนวนผู้เล่น: " .. playerCount .. "/" .. maxPlayers,
+				["color"] = 16777215,
+				["fields"] = {},
+				["thumbnail"] = {
+					["url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
+				},
+				["footer"] = {
+					["text"] = "Fetching Notify\n" .. currentTime,
+					["icon_url"] = "https://cdn.discordapp.com/attachments/1221930856394919937/1336015603420364880/20250131_095628_0000.png"
 				}
 			}
-		})
+		}
+	})
 
-		if success then
-			print("Webhook successfully sent for " .. zoneName)
-		else
-			print("Error in sending webhook for " .. zoneName)
-		end
+	if success then
+		local s=true
 	end
-	local fishingZones = workspace:FindFirstChild("zones") and workspace.zones:FindFirstChild("fishing")
-	if fishingZones and not _G.First then
-		_G.First = true
-		for _, v in pairs(fishingZones:GetChildren()) do
-			if table.find(EventsZoneWeb, v.Name) then
-				sendEventNotification(v.Name)
-			end
+end
+task.spawn(function()
+	if not _G.First.LoveEel then
+		local Lovestorms = fzone:FindFirstChild("Lovestorm Eel")
+		if Lovestorms then
+			_G.First.LoveEel = true
+			sendEventNotification(Lovestorms.Name, "https://discord.com/api/webhooks/1338518823204290590/ORJ097Rs241TDO0VEZMHMg6fz9xH_cEQCSGxKipnM1NlY152nkqc2TCuMwb9JcgjgQV5")
 		end
-		fishingZones.ChildAdded:Connect(function(child)
-			if table.find(EventsZoneWeb, child.Name) then
-				sendEventNotification(child.Name)
-			end
-		end)
-	else
-		warn("Fishing zones not found in workspace.")
 	end
 end)
+task.spawn(function()
+	if not _G.First.Orca then
+		local Orca1 = fzone:FindFirstChild("Orcas Pool")
+		if Orca1 then
+			_G.First.Orca = true
+			sendEventNotification(Orca1.Name, "https://discord.com/api/webhooks/1338519203325415496/Qaa356uyHqBUvxnh4nVkK8HCZUo0XrWfCHKzqU41KfaXrQd00TustF0IihFQ2B-LHQ39")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.Megalodon then
+		local MZone = fzone:FindFirstChild("Megalodon Default")
+		if MZone then
+			_G.First.Megalodon = true
+			sendEventNotification(MZone.Name, "https://discord.com/api/webhooks/1338522854416715786/sazJhn6IzhhwDI9vQsyXHuQ-93WEKY829cUY__lQXvzc7Q583NRmheFzYbZAuy53JIV3")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.GWS then
+		local GZone = fzone:FindFirstChild("Great White Shark")
+		if GZone then
+			_G.First.GWS = true
+			sendEventNotification(GZone.Name, "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.WS then
+		local WZone = fzone:FindFirstChild("Whale Shark")
+		if WZone then
+			_G.First.WS = true
+			sendEventNotification(WZone.Name, "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.GHS then
+		local WZone = fzone:FindFirstChild("Great Hammerhead Shark")
+		if WZone then
+			_G.First.GHS = true
+			sendEventNotification(WZone.Name, "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.Kraken then	
+		local KZone = fzone:FindFirstChild("The Kraken Pool")
+		if KZone then
+			_G.First.Kraken = true
+			sendEventNotification(KZone.Name, "https://discord.com/api/webhooks/1338519263887097958/n6vS90JutckcNxQvcNv9JXjxjq5GkHvFcpNAPKqMBbkH56XG7dtvPqk-zxaEkA9hK-Pw")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.Merchant then
+		local Merc = workspace:FindFirstChild("Merchant Boat", true)
+		if Merc then
+			_G.First.Merchant=true
+			sendEventNotification("Merchant", "https://discord.com/api/webhooks/1338519368799359067/Tvykx7EnLizCpMfo4fGG4nXS3yLWcuLbAxiai9VVY-OloAjH6Dd-GecNlgnuBklZT-7V")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.Sunken then
+		local met1 = workspace.ActiveChestsFolder:FindFirstChild("Pad", true)
+		if met1 then
+			_G.First.Sunken = true
+			sendEventNotification("Sunken Chest", "https://discord.com/api/webhooks/1338525786910756928/tdglLSAlBTqc6_W5kRRq2_qffun56i6-rS6z7NjrG195Y-NH5a_S3IglA0b6kkbBLV2r")
+		end
+	end
+end)
+task.spawn(function()
+	if not _G.First.Meteor then
+		local metoe22 = workspace.MeteorItems:FindFirstChildOfClass("Model")
+		if metoe22 then
+			_G.First.Meteor = true
+			sendEventNotification("Meteor", "https://discord.com/api/webhooks/1338519482343100567/9NBxTE3oELphoXGRCSbRSUNS3O5UB1ZHbjsCwSVGISsMLQHz5beZvRf9vmwqALnw5Gka")
+		end
+	end
+end)
+-------------------------------------------------------- Child Added
+task.spawn(function()
+	local meteorFolder = workspace:FindFirstChild("MeteorItems")
+	if meteorFolder then
+		meteorFolder.ChildAdded:Connect(function(child)
+			if child:IsA("Model") then
+				sendEventNotification("Meteor", "https://discord.com/api/webhooks/1338519482343100567/9NBxTE3oELphoXGRCSbRSUNS3O5UB1ZHbjsCwSVGISsMLQHz5beZvRf9vmwqALnw5Gka")
+			end
+		end)
+	end
+end)
+task.spawn(function()
+	local meteorFolder = workspace:FindFirstChild("ActiveChestsFolder")
+	if meteorFolder then
+		meteorFolder.ChildAdded:Connect(function(child)
+			if child:IsA("Model") then
+				sendEventNotification("Sunken Chest", "https://discord.com/api/webhooks/1338525786910756928/tdglLSAlBTqc6_W5kRRq2_qffun56i6-rS6z7NjrG195Y-NH5a_S3IglA0b6kkbBLV2r")
+			end
+		end)
+	end
+end)
+task.spawn(function()
+	workspace.ChildAdded:Connect(function(child)
+		if child.Name == "Merchant Boat" then
+			sendEventNotification("Merchant", "https://discord.com/api/webhooks/1338525786910756928/tdglLSAlBTqc6_W5kRRq2_qffun56i6-rS6z7NjrG195Y-NH5a_S3IglA0b6kkbBLV2r")
+		end
+	end)
+end)
+childsendevents=function(v, web)
+	local temzone = workspace.zones:FindFirstChild("fishing")
+	if temzone then
+		temzone.ChildAdded:Connect(function(child)
+			if child.Name == v then
+				sendEventNotification(v, web)
+			end
+		end)
+	end
+end
+task.spawn(function()
+	childsendevents("Lovestorm Eel", "https://discord.com/api/webhooks/1338518823204290590/ORJ097Rs241TDO0VEZMHMg6fz9xH_cEQCSGxKipnM1NlY152nkqc2TCuMwb9JcgjgQV5")
+	childsendevents("Orcas Pool", "https://discord.com/api/webhooks/1338519203325415496/Qaa356uyHqBUvxnh4nVkK8HCZUo0XrWfCHKzqU41KfaXrQd00TustF0IihFQ2B-LHQ39")
+	childsendevents("Megalodon Default", "https://discord.com/api/webhooks/1338522854416715786/sazJhn6IzhhwDI9vQsyXHuQ-93WEKY829cUY__lQXvzc7Q583NRmheFzYbZAuy53JIV3")
+	childsendevents("Great Hammerhead Shark", "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+	childsendevents("Whale Shark", "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+	childsendevents("Great White Shark", "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
+	childsendevents("The Kraken Pool", "https://discord.com/api/webhooks/1338519263887097958/n6vS90JutckcNxQvcNv9JXjxjq5GkHvFcpNAPKqMBbkH56XG7dtvPqk-zxaEkA9hK-Pw")
+end)
+print("All" .. LocalPlayer.Name)
