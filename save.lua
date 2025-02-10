@@ -57,7 +57,6 @@ _G.Config = {
 	AutoExc = true,
 	AutoFish = false,
 	ModeFishing = "Instant",
-	ModePosition = "Automatic",
 	Percentz = 100,
 	Skipday = false,
 	AutoSell = false,
@@ -72,7 +71,6 @@ _G.Config = {
 	SelectPosition = "",
 	Save = {},
 	Positions = {},
-	BlackScreen = false,
 }
 local TeleportCheck = false
 LocalPlayer.OnTeleport:Connect(function(State)
@@ -967,16 +965,6 @@ General_1:CreateSelect({
 		SaveSettings()
 	end,
 })
-General_1:CreateSelect({
-	Title = "โหมดตำแหน่ง",
-	Desc = "เลือกโหมด",
-	List = {"Save Position", "Automatic"},
-	Value = _G.Config.ModePosition,
-	Callback = function(value)
-		_G.Config.ModePosition = value
-		SaveSettings()
-	end,
-})
 EventsZone = {"Lovestorm Eel", "Great White Shark", "Whale Shark", "Orcas Pool", "Megalodon Default", "The Kraken Pool", "Great Hammerhead Shark", "Isonade"}
 EventsDD = General_1:CreateDropdown({
 	Title = "เลือกปลาอีเว้นท์",
@@ -1116,21 +1104,7 @@ task.spawn(function()
 							if iso then tp(CFrame.new(findheadpos(iso))*CFrame.new(15, 5, 0))end
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						end
-					else
-						if _G.Config.ModePosition == "Save Position" then
-							local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
-							if selectedPosition then
-								tp(CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z))
-							end
-						end
 					end
-				end
-			end
-		else
-			if _G.Config.ModePosition == "Save Position" then
-				local selectedPosition = _G.Config.Positions[_G.Config.SelectPosition]
-				if selectedPosition then
-					tp(CFrame.new(selectedPosition.X, selectedPosition.Y, selectedPosition.Z))
 				end
 			end
 		end
@@ -1684,19 +1658,19 @@ TP_3 = _TP:CreateSection({Title = "โลเคชั่น",Side = "Right"})
 TP_4 = _TP:CreateSection({Title = "โซนที่ดีที่สุด",Side = "Left"})
 TP_5 = _TP:CreateSection({Title = "เรือ",Side = "Left"})
 TP_6 = _TP:CreateSection({Title = "โซนทั้งหมด",Side = "Right"})
-SCZone = "nil"
-ALLZoneList = {}
-ZoneNames = {}
+local SCZone = "nil"
+local ALLZoneList = {}
+local ZoneNames = {}
 for _, v in pairs(workspace.zones.fishing:GetChildren()) do
 	if v:IsA("Part") then
-		local zoneName22 = v.Name
-		if not ZoneNames[zoneName22] then
-			table.insert(ALLZoneList, v)
-			ZoneNames[zoneName22] = true
+		local zoneName = v.Name
+		if not ZoneNames[zoneName] then
+			table.insert(ALLZoneList, zoneName)
+			ZoneNames[zoneName] = true
 		end
 	end
 end
-ZoneDD =TP_6:CreateDropdown({
+ZoneDD = TP_6:CreateDropdown({
 	Title = "เลือกโซน [ ทั้งหมด ]",
 	List = ALLZoneList,
 	Value = SCZone,
@@ -1705,16 +1679,21 @@ ZoneDD =TP_6:CreateDropdown({
 		SCZone = value
 	end
 })
-TP_6:CreateButton({Title = "วาปไปยังสถานที่",Mode = 1,Callback = function()
-	if SCZone == "nil" then
-		Notify("Error", "Please Select Zone")
-	else
-		local thePlace = workspace.zones.fishing:FindFirstChild(SCZone, true)
-		if thePlace and thePlace:IsA("BasePart") then
-			tp(CFrame.new(findheadpos(thePlace)))
+TP_6:CreateButton({
+	Title = "วาปไปยังโซน",
+	Mode = 1,
+	Callback = function()
+		if SCZone == "nil" then
+			Notify("Error", "Please Select Zone")
+		else
+			local thePlace = workspace.zones.fishing:FindFirstChild(SCZone, true)
+			if thePlace and thePlace:IsA("BasePart") then
+				tp(CFrame.new(findheadpos(thePlace)))
+			end
 		end
 	end
-end})
+})
+
 TP_6:CreateButton({Title = "รีเฟรช",Mode = 1,Callback = function()
 	ALLZoneList = {}
 	ZoneNames = {}
@@ -1959,14 +1938,12 @@ BlackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 BlackFrame.Size = UDim2.new(1,0,1,0)
 BlackFrame.BackgroundTransparency = 0
 BlackFrame.Visible = false
-Webhook_2:CreateToggle({Title = "จอดำ AFK [ ลดอาการแลต ]",Value = _G.Config.BlackScreen,Callback = function(value)
-	_G.Config.BlackScreen = valuefalse
-	if value and _G.Config.BlackScreen then
+Webhook_2:CreateToggle({Title = "เปิดจอดำ",Value = false,Callback = function(value)
+	if value then
 		BlackFrame.Visible = true
 	else
 		BlackFrame.Visible = false
 	end
-	SaveSettings()
 end})
 Webhook_2:CreateToggle({Title = "รันสคริปต์อัตโนมัติ",Value = _G.Config.AutoExc,Callback = function(value)
 	_G.Config.AutoExc = value
