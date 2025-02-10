@@ -363,10 +363,11 @@ end]]
 _Doc=_Window:CreateTab({Title = "การแนะนำ",Desc = "ภาพรวม",Icon = 94464892425343})
 -------------------------------------------------------------------------------------------------------------------------------
 Credit=_Doc:CreateSection({Title = "เครดิต",Side = "Right"})
-Credit:CreateImage({Title = "Owner",Desc = "[ ggigix ]",Icon = 100618692787198})
+Credit:CreateImage({Title = "Owner",Desc = "Ninesixt Lnwza",Icon = 100618692787198})
 Credit:CreateButton({Title = "Discord",Mode = 1,Callback = function()
 	setclipboard("https://discord.gg/uy6TP4ew7d")
 end})
+Credit:CreateLabel({Title = 'เข้าร่วมดิสคอร์ดเพื่อเข้าเซิฟที่มีอีเว้นท์เกิด !', Side = "Left"})
 -------------------------------------------------------------------------------------------------------------------------------
 Overview=_Doc:CreateSection({Title = "ภาพรวม",Side = "Left"})
 playerName =LocalPlayer.Name
@@ -1959,13 +1960,11 @@ BlackFrame.Size = UDim2.new(1,0,1,0)
 BlackFrame.BackgroundTransparency = 0
 BlackFrame.Visible = false
 Webhook_2:CreateToggle({Title = "จอดำ AFK [ ลดอาการแลต ]",Value = _G.Config.BlackScreen,Callback = function(value)
-	_G.Config.BlackScreen = value
+	_G.Config.BlackScreen = valuefalse
 	if value and _G.Config.BlackScreen then
-		game.RunService:Set3dRenderingEnabled(true)
 		BlackFrame.Visible = true
 	else
 		BlackFrame.Visible = false
-		game.RunService:Set3dRenderingEnabled(false)
 	end
 	SaveSettings()
 end})
