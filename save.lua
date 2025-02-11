@@ -1550,7 +1550,7 @@ task.spawn(function()
 			if Equipnow and Equipnow:FindFirstChild("equip") and Equipnow.equip.Text == "[Equipped]" then
 				local enchant = Equipnow:FindFirstChild("enchant")
 				if enchant then
-					if table.find(enchant.Text, _G.Config.encs) then
+					if table.find(_G.Config.encs, enchant.Text) then
 						Notify("Success", "You got Select Enchant.", 3)
 					else
 						fireproximityprompt(workspace.world.interactables["Enchant Altar"].ProximityPrompt)
