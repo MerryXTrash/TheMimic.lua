@@ -64,7 +64,7 @@ _G.Config = {
 	SelectZoneEvents = {"Orcas Pool", "The Kraken Pool"},
 	AllEvents = false,
 	Hopserver = false,
-	encs = "Hasty",
+	encs = {"Hasty", "Abyssal"},
 	web = "ใส่ URL",
 	Webhook = false,
 	DelaySendWeb = 60,
@@ -361,12 +361,12 @@ end]]
 _Doc=_Window:CreateTab({Title = "การแนะนำ",Desc = "ภาพรวม",Icon = 94464892425343})
 -------------------------------------------------------------------------------------------------------------------------------
 Credit=_Doc:CreateSection({Title = "เครดิต",Side = "Right"})
-Credit:CreateImage({Title = "Owner",Desc = "Ninesixt Lnwza",Icon = 100618692787198})
+Dayz = Credit:CreateLabel({Title = 'เป็นวันที่ดี', Side = "Center"})
 Credit:CreateLabel({Title = 'เข้าร่วมดิสคอร์ดเพื่อเข้าเซิฟที่มีอีเว้นท์เกิด !', Side = "Center"})
+Credit:CreateImage({Title = "Owner",Desc = "Ninesixt Lnwza",Icon = 100618692787198})
 Credit:CreateButton({Title = "Discord",Mode = 1,Callback = function()
 	setclipboard("https://discord.gg/uy6TP4ew7d")
 end})
-Dayz = Credit:CreateLabel({Title = 'เป็นวันที่ดี', Side = "Center"})
 local valen = EmojiModule:GetEmoji("Valentine")
 local xm = EmojiModule:GetEmoji("Xmas")
 local normal = EmojiModule:GetEmoji("Chill")
@@ -375,13 +375,13 @@ local newy = EmojiModule:GetEmoji("Newyear")
 game:GetService("RunService").Heartbeat:Connect(function()
 	local currentDate = os.date("%m-%d")
 	if currentDate == "01-01" then
-		Dayz:Set("สุขสันต์ปีใหม่, ขอให้เป็นปีที่ดี" .. newy)
+		Dayz:Set("สุขสันต์ปีใหม่, ขอให้เป็นปีที่ดี " .. newy)
 	elseif currentDate == "02-14" then
-		Dayz:Set("สุขสันต์วันวาเลนไทน์, ขอให้มีความสุขกับคนที่รักถ้าไม่มีคนที่รักก็เรื่องของมึงไอควาย" .. valen)
+		Dayz:Set("สุขสันต์วันวาเลนไทน์, ขอให้มีความสุขกับคนที่รักถ้าไม่มีคนรักก็เรื่องของมึงไอควายสภาพ " .. valen)
 	elseif currentDate == "10-31" then
-		Dayz:Set("ทริคออทรีค, ระวังโดนผีหลอกกกกกก" .. hwa)
+		Dayz:Set("ทริคออทรีค, ระวังโดนผีหลอกกกกกก " .. hwa)
 	elseif currentDate == "12-25" then
-		Dayz:Set("เมอร์รี่คริสมาส, ว่าแต่อาบน้ำยัง" .. xm)
+		Dayz:Set("เมอร์รี่คริสมาส, ว่าแต่อาบน้ำยัง " .. xm)
 	else
 		Dayz:Set("เป็นวันที่ดี " .. normal)
 	end
@@ -611,12 +611,8 @@ General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งท
 	end
 end})
 General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
+	positionDropdown:Clear(_G.Config.Positions[_G.Config.SelectPosition])
 	_G.Config.Positions[_G.Config.SelectPosition] = ""
-	positionDropdown:Clear()
-	for name, _ in pairs(_G.Config.Positions) do
-		positionDropdown:AddList(name)
-		SaveSettings()
-	end
 end})
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
@@ -1510,7 +1506,7 @@ Item_2:CreateDropdown({
 	Title = "เลือกเอนชาร์จ",
 	List = enclist,
 	Value = _G.Config.encs,
-	Multi = false,
+	Multi = true,
 	Callback = function(value)
 		_G.Config.encs = value
 		SaveSettings()
@@ -1629,7 +1625,7 @@ task.spawn(function()
 				if Equipnow and Equipnow:FindFirstChild("equip") and Equipnow.equip.Text == "[Equipped]" then
 					local enchant = Equipnow:FindFirstChild("enchant")
 					if enchant then
-						if string.find(enchant.Text, _G.Config.encs) then
+						if table.find(enchant.Text, _G.Config.encs) then
 							Notify("Success", "You got Select Enchant.", 3)
 						else
 							fireproximityprompt(workspace.world.interactables["Enchant Altar"].ProximityPrompt)
@@ -1949,20 +1945,18 @@ task.spawn(function()
 	end
 end)
 -------------------------------------------------------------------------------------------------------------------------------
-BlackScreen = Instance.new("ScreenGui")
-BlackScreen.IgnoreGuiInset = true
-BlackScreen.Parent = game:GetService("CoreGui")
-BlackFrame = Instance.new("Frame")
-BlackFrame.Parent = BlackScreen
-BlackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-BlackFrame.Size = UDim2.new(1,0,1,0)
-BlackFrame.BackgroundTransparency = 0
-BlackFrame.Visible = false
+local Black = PlayerGui:FindFirstChild("shutdown")
 Webhook_2:CreateToggle({Title = "เปิดจอดำ",Value = false,Callback = function(value)
 	if value then
-		BlackFrame.Visible = true
+		if Black then
+			Black.Enabled = true
+			game:GetService("RunService"):Set3dRenderingEnabled(false)
+		end
 	else
-		BlackFrame.Visible = false
+		if Black then
+			Black.Enabled = true
+			game:GetService("RunService"):Set3dRenderingEnabled(true)
+		end
 	end
 end})
 Webhook_2:CreateToggle({Title = "รันสคริปต์อัตโนมัติ",Value = _G.Config.AutoExc,Callback = function(value)
