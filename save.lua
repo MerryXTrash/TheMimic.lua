@@ -1545,20 +1545,19 @@ end)
 task.spawn(function()
 	while task.wait(0.5) do
 		if _G.AutoEnc then
-			pcall(function()
-				local Equipnow=PlayerGui.hud.safezone.equipment.rods.scroll.safezone:FindFirstChild(RodName)
-				if Equipnow and Equipnow:FindFirstChild("equip") and Equipnow.equip.Text == "[Equipped]" then
-					local enchant = Equipnow:FindFirstChild("enchant")
-					if enchant then
-						if table.find(enchant.Text, _G.Config.encs) then
-							Notify("Success", "You got Select Enchant.", 3)
-						else
-							fireproximityprompt(workspace.world.interactables["Enchant Altar"].ProximityPrompt)
-							buyprompt()
-						end
+			RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
+			local Equipnow=PlayerGui.hud.safezone.equipment.rods.scroll.safezone:FindFirstChild(RodName)
+			if Equipnow and Equipnow:FindFirstChild("equip") and Equipnow.equip.Text == "[Equipped]" then
+				local enchant = Equipnow:FindFirstChild("enchant")
+				if enchant then
+					if table.find(enchant.Text, _G.Config.encs) then
+						Notify("Success", "You got Select Enchant.", 3)
+					else
+						fireproximityprompt(workspace.world.interactables["Enchant Altar"].ProximityPrompt)
+						buyprompt()
 					end
 				end
-			end)
+			end
 		end
 	end
 end)
