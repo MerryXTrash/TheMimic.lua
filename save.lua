@@ -997,48 +997,6 @@ General_1:CreateToggle({Title = "เปิดโหมดตกปลาอี�
 	_G.Config.AllEvents=value
 	SaveSettings()
 end})
-General_1:CreateToggle({Title = "เปลี่ยนเซิฟหาปลาอีเว้นท์ที่เลือก",Value =_G.Config.Hopserver,Callback = function(value)
-	_G.Config.Hopserver=value
-	SaveSettings()
-end})
-General_1:CreateToggle({Title = "ใช้โทเท็มพระอาทิตย์หาปลาอีเว้นท์",Value =_G.Config.Skipday,Callback = function(value)
-	_G.Config.Skipday=value
-	SaveSettings()
-end})
-task.spawn(function()
-	while task.wait(5) do
-		if _G.Config.Skipday then
-			for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-				if table.find(_G.Config.SelectZoneEvents, v.Name) then
-					local Istrue = true
-				else
-					if not LocalPlayer.Character:FindFirstChild("Sundial Totem") then
-						if Backpack:FindFirstChild("Sundial Totem") then
-							Backpack:WaitForChild("Sundial Totem").Parent = LocalPlayer.Character
-							Click()
-							Click()
-						end
-					end
-				end
-			end
-		end
-	end
-end)
-task.spawn(function()
-	while task.wait() do
-		if _G.Config.Hopserver then
-			pcall(function()
-				for _, v in pairs(workspace.zones.fishing:GetChildren()) do
-					if table.find(_G.Config.SelectZoneEvents, v.Name) then
-						local Istrue = true
-					else
-						HopServer(true)
-					end
-				end
-			end)
-		end
-	end
-end)
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.ModeFishing == "Instant" then
@@ -1533,39 +1491,6 @@ end})
 Item_3:CreateToggle({Title = "ออโต้ใช้กล่องเหยื่อ [ ถือก่อนเปิด ]",Value = _G.BaitCrate,Callback = function(value)
 	_G.BaitCrate = value
 end})
-Item_3:CreateToggle({Title = "ออโต้หากล่องสมบัติ",Value = _G.ChestSSS,Callback = function(value)
-	_G.ChestSSS = value
-end})
-task.spawn(function()
-	while task.wait() do
-		if _G.ChestSSS then
-			if not workspace.world.chests:FindFirstChildOfClass("Part") and not workspace.world.chests:FindFirstChild("ChestClosed", true) then
-				tp(CFrame.new(-2825, 215, 1518))
-				task.wait()
-				if Backpack:FindFirstChild("Treasure Map") then
-					if not LocalPlayer.Character:FindFirstChild("Treasure Map") then
-						Backpack:FindFirstChild("Treasure Map").Parent = LocalPlayer.Character
-						pcall(function()
-							workspace.world.npcs:FindFirstChild("Jack Marrow").treasure.repairmap:InvokeServer()
-						end)
-					end
-				else
-					Notify("Treasure Map", "Not Found in Backpack", 1)
-				end
-			end
-			if workspace.world.chests:FindFirstChildOfClass("Part") and workspace.world.chests:FindFirstChild("ChestClosed", true) then
-				for _, v in pairs(workspace.world.chests:GetChildren()) do
-					if v:IsA("Part") then
-						if v:FindFirstChild("ChestClosed") then
-							tp(v.CFrame)
-							findfire(v)
-						end
-					end
-				end
-			end
-		end
-	end
-end)
 task.spawn(function()
 	while task.wait(.1) do
 		if _G.BaitCrate then
@@ -1954,7 +1879,7 @@ Webhook_2:CreateToggle({Title = "เปิดจอดำ",Value = false,Callbac
 		end
 	else
 		if Black then
-			Black.Enabled = true
+			Black.Enabled = false
 			game:GetService("RunService"):Set3dRenderingEnabled(true)
 		end
 	end
