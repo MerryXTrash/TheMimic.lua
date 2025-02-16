@@ -1,16 +1,24 @@
-if game:GetService("CoreGui"):FindFirstChild("Synack")then game:GetService("CoreGui").Synack:Destroy()end
-_id=game.PlaceId
-Player=game:GetService("Players")
-LocalPlayer=Player.LocalPlayer
-Backpack=LocalPlayer.Backpack
-PlayerGui=LocalPlayer.PlayerGui
-rep = game:GetService("ReplicatedStorage")
-GuiService = game:GetService("GuiService")
-RunService = game:GetService("RunService")
-VirtualInputManager=game:GetService("VirtualInputManager")
+CoreGui = game:GetService("CoreGui");
+rep = game:GetService("ReplicatedStorage");
+GuiService = game:GetService("GuiService");
+RunService = game:GetService("RunService");
+VirtualInputManager=game:GetService("VirtualInputManager");
+HttpService = game:GetService("HttpService");
+_id=game.PlaceId;
+Player=game:GetService("Players");
+LocalPlayer=Player.LocalPlayer;
+Backpack=LocalPlayer.Backpack;
+PlayerGui=LocalPlayer.PlayerGui;
+Character=LocalPlayer.Character;
+v3 = Vector3;
+cframe=CFrame
+tspawn=task.spawn;
 loadstr = function(raw)loadstring(game:HttpGet(raw))()end
 queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+if CoreGui:FindFirstChild("Synack")then
+	CoreGui.Synack:Destroy()
+end
 if not game:IsLoaded() then
 	local notLoaded = Instance.new("Message")
 	notLoaded.Parent = game:GetService("CoreGui")
@@ -30,7 +38,6 @@ if success then
 else
 	warn("Failed to load module from URL!")
 end
-HttpService = game:GetService("HttpService")
 function sendwebhook(url, data)
 	local HttpService = game:GetService("HttpService")
 	local success, newdata = pcall(function()
@@ -82,7 +89,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		pcall(function()
-			if _G.Lock or _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.loveEel then
+			if _G.Lock or _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.loveEel or _G.Isoned then
 				if syn then
 					setfflag("HumanoidParallelRemoveNoPhysics", "False")
 					setfflag("HumanoidParallelRemoveNoPhysicsNoSimulate2", "False")
@@ -234,14 +241,12 @@ equip = function(tool)
 		end
 	end
 end
-
 Click=function()
 	game:GetService("VirtualUser"):CaptureController()
 	game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
 end
 HopServer = function(FullServer) -- Hop Server (Low)
 	local FullServer = FullServer or false
-
 	local Http = game:GetService("HttpService")
 	local Api = "https://games.roblox.com/v1/games/"
 
@@ -285,19 +290,6 @@ HopServer = function(FullServer) -- Hop Server (Low)
 		end
 		wait()
 	until game.PlaceId ~= game.PlaceId
-end
-ESP=function(obj, Color)
-	if not obj:FindFirstChild(";-;") then
-		local H = Instance.new("Highlight")
-		H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		H.FillTransparency = 0.5
-		H.Name = ";-;"
-		H.FillColor = Color
-		H.OutlineColor = Color3.fromRGB(255, 255, 255)
-		H.OutlineTransparency = 0
-		H.Adornee = obj
-		H.Parent = obj
-	end
 end
 loop=function(callback)
 	if type(callback) ~= "function" then
@@ -611,8 +603,8 @@ General_2_2:CreateButton({Title = "วาร์ปไปตำแหน่งท
 	end
 end})
 General_2_2:CreateButton({Title = "ลบตำแหน่งที่เลือก", Mode = 1, Callback = function()
-	positionDropdown:Clear(_G.Config.Positions[_G.Config.SelectPosition])
-	_G.Config.Positions[_G.Config.SelectPosition] = ""
+	positionDropdown:Clear(_G.Config.Positions)
+	_G.Config.Positions = ""
 end})
 
 General_2 = _General:CreateSection({Title = "การตั้งค่า",Side = "Right"})
@@ -773,7 +765,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.Isoned then
 			local gws = fzone:FindFirstChild("Isonade", true)
-			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 15, 0))end
+			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(30, 23, 0))
+			end
 		end
 	end
 end)
@@ -781,7 +774,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.loveEel then
 			local gws = fzone:FindFirstChild("Lovestorm Eel", true)
-			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
+			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))
+			end
 		end
 	end
 end)
@@ -789,7 +783,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.gwshark then
 			local gws = fzone:FindFirstChild("Great White Shark", true)
-			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))end
+			if gws then tp(CFrame.new(findheadpos(gws)) * CFrame.new(15, 10, 0))
+			end
 		end
 	end
 end)
@@ -809,7 +804,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.whaleshark then
 			local wsa = fzone:FindFirstChild("Whale Shark", true)
-			if wsa then tp(CFrame.new(findheadpos(wsa))*CFrame.new(15, 10, 0))end
+			if wsa then tp(CFrame.new(findheadpos(wsa))*CFrame.new(15, 10, 0))
+			end
 		end
 	end
 end)
@@ -817,7 +813,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.megalo then
 			local mgd = fzone:FindFirstChild("Megalodon Default", true)
-			if mgd then tp(CFrame.new(findheadpos(mgd))*CFrame.new(15, 5, 0))end
+			if mgd then tp(CFrame.new(findheadpos(mgd))*CFrame.new(15, 5, 0))
+			end
 		end
 	end
 end)
@@ -825,7 +822,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.kraken then
 			local kaken = fzone:FindFirstChild("The Kraken Pool", true)
-			if kaken then tp(CFrame.new(findheadpos(kaken)) * CFrame.new(15, 5, 0))end
+			if kaken then tp(CFrame.new(findheadpos(kaken)) * CFrame.new(15, 5, 0))
+			end
 		end
 	end
 end)
@@ -833,7 +831,8 @@ task.spawn(function()
 	while task.wait() do
 		if _G.hammerh then
 			local ge = fzone:FindFirstChild("Great Hammerhead Shark", true)
-			if ge then tp(CFrame.new(findheadpos(ge))*CFrame.new(15, 5, 0))end
+			if ge then tp(CFrame.new(findheadpos(ge))*CFrame.new(15, 5, 0))
+			end
 		end
 	end
 end)
@@ -975,7 +974,7 @@ General_1:CreateImage({
 General_1:CreateSelect({
 	Title = "โหมดตกปลา",
 	Desc = "เลือกโหมด",
-	List = {"Safe", "Instant"},
+	List = {"Safe", "Instant", "Fail"},
 	Value = _G.Config.ModeFishing,
 	Callback = function(value)
 		_G.Config.ModeFishing = value
@@ -1000,7 +999,7 @@ end})
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.ModeFishing == "Instant" then
-			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.loveEel then
+			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.loveEel or _G.Isoned then
 				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
 				if Backpack:FindFirstChild(RodName) then
 					LocalPlayer.Character.Humanoid:EquipTool(Backpack:FindFirstChild(RodName))
@@ -1013,7 +1012,6 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
-					task.wait(1)
 				end
 			end
 		else
@@ -1076,7 +1074,7 @@ task.spawn(function()
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						elseif v.Name == "Isonade" then
 							local iso = workspace:FindFirstChild("Isonade", true)
-							if iso then tp(CFrame.new(findheadpos(iso))*CFrame.new(15, 5, 0))end
+							if iso then tp(CFrame.new(findheadpos(iso))*CFrame.new(0, 20, -12))end
 							MainStatus:Set('<font color="rgb(85, 255, 127)">ตุณกำลังตกปลาที่ : </font>' .. v.Name)
 						end
 					end
@@ -1088,7 +1086,7 @@ end)
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.ModeFishing == "Instant" then
-			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.allevents or _G.loveEel then
+			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.allevents or _G.loveEel or _G.Isoned then
 				pcall(function()
 					PlayerGui:FindFirstChild("shakeui").safezone:FindFirstChild("button").Size = UDim2.new(1001, 0, 1001, 0)
 					game:GetService("VirtualUser"):Button1Down(Vector2.new(1, 1))
@@ -1104,8 +1102,26 @@ task.spawn(function()
 			pcall(function()
 				for _, s in pairs(PlayerGui:GetChildren()) do
 					if s.Name == "reel" then
-						game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(100, true)
-						task.wait(.5)
+						if not _G.Config.Fail then
+							game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(100, true)
+							if LocalPlayer.Character then
+								local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+								if humanoid then
+									local animator = humanoid:FindFirstChildOfClass("Animator")
+									if animator then
+										for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+											if track.Animation and track.Animation.AnimationId == "rbxassetid://113972107465696" then
+												track:Destroy()
+											end
+										end
+									end
+								end
+							end
+						end
+						if _G.Config.ModeFishing == "Fail" then
+							game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(50, true)
+							task.wait(.5)
+						end
 					end
 				end
 			end)
@@ -1117,13 +1133,16 @@ task.spawn(function()
 						if s then
 							s.Size = UDim2.new(1, 0, 1.29999995, 0)
 						end
+						if _G.Config.ModeFishing == "Fail" then
+							game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(50, true)
+							task.wait(.5)
+						end
 					end
 				end
 			end)
 		end
 	end
 end)
-
 General_1:CreateToggle({Title = "ออโต้ขายปลาทุกตัวที่มี",Value =_G.Config.AutoSell,Callback = function(value)
 	_G.Config.AutoSell=value
 	SaveSettings()
