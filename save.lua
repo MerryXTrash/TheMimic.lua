@@ -997,7 +997,7 @@ General_1:CreateToggle({Title = "เปิดโหมดตกปลาอี�
 	SaveSettings()
 end})
 task.spawn(function()
-	while task.wait() do
+	while task.wait(.1) do
 		if _G.Config.ModeFishing == "Instant" then
 			if _G.Config.AutoFish or _G.hammerh or _G.megalo or _G.kraken or _G.Goldpole or _G.whaleshark or _G.orca or _G.gwshark or _G.loveEel or _G.Isoned then
 				RodName = rep.playerstats[LocalPlayer.Name].Stats.rod.Value
@@ -1012,6 +1012,7 @@ task.spawn(function()
 					end)
 				else
 					LocalPlayer.Character:FindFirstChild(RodName).events.cast:FireServer(_G.Config.Percentz)
+					task.wait()
 				end
 			end
 		else
@@ -1096,6 +1097,17 @@ task.spawn(function()
 		end
 	end
 end)
+function removeTargetAnimation()
+	local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+	if not animator then return end
+	for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+		if track.Animation and track.Animation.AnimationId == "rbxassetid://113972107465696" then
+			track:Stop()
+			track:Destroy()
+		end
+	end
+end
 task.spawn(function()
 	while task.wait() do
 		if _G.Config.ModeFishing == "Instant" then
@@ -1104,19 +1116,7 @@ task.spawn(function()
 					if s.Name == "reel" then
 						if not _G.Config.Fail then
 							game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(100, true)
-							if LocalPlayer.Character then
-								local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-								if humanoid then
-									local animator = humanoid:FindFirstChildOfClass("Animator")
-									if animator then
-										for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-											if track.Animation and track.Animation.AnimationId == "rbxassetid://113972107465696" then
-												track:Destroy()
-											end
-										end
-									end
-								end
-							end
+							removeTargetAnimation()
 						end
 						if _G.Config.ModeFishing == "Fail" then
 							game:GetService("ReplicatedStorage").events["reelfinished "]:FireServer(50, true)
@@ -2212,4 +2212,4 @@ task.spawn(function()
 	childsendevents("Great White Shark", "https://discord.com/api/webhooks/1338519096777638031/QoYkaRrF-Cb2YnpJMmPGc2_ZX1uObKabLhOGHpf4uZOe6lSvyTQ2iN3661BfD95Lwlkj")
 	childsendevents("The Kraken Pool", "https://discord.com/api/webhooks/1338519263887097958/n6vS90JutckcNxQvcNv9JXjxjq5GkHvFcpNAPKqMBbkH56XG7dtvPqk-zxaEkA9hK-Pw")
 end)
-print("All" .. LocalPlayer.Name)
+print("All1" .. LocalPlayer.Name)
